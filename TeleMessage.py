@@ -14,8 +14,7 @@ lotMap = json.loads(os.getenv('LOT_MAP'))
 bot_token = os.getenv('BOT_TOKEN')
 
 # Initialize Telegram bot
-bot = Bot(token='')
-#2042081884:AAEdW6UpogA5CergpatczMs1A8NhnpjLXbU
+bot = Bot(token=bot_token)
 
 # Get the current day of the week
 today = datetime.date.today()
