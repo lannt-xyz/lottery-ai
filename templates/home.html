@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lottery Predictions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h1 { color: #333; }
+        .table-responsive { overflow-x: auto; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; color: black; }
+
+        /* Increase font size for small devices */
+        @media (max-width: 600px) {
+            body { font-size: 18px; }
+        }
+    </style>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var targetDate = '{{ today }}';
+            $('#date-picker').datepicker({
+                dateFormat: 'yy-mm-dd',
+            });
+            $('#date-picker').datepicker('setDate', new Date(targetDate));
+        });
+    </script>
+
+</head>
+<body>
+    <h1>Lottery Predictions</h1>
+    <form action="/with-date" method="post">
+        <label for="date-picker">Choose a date:</label>
+        <input type="text" id="date-picker" name="date">
+        <input type="submit" value="Submit">
+        <hidden id="targetDate" value="{{ today }}">
+    </form>
+
+    <h2>Hello, the prediction for {{ today }} ({{ dayOfWeekName }})</h2>
+    <div class="table-responsive">
+        <table>
+            <tr>
+                {% for prediction in predictions %}
+                    <th>{{ prediction.cityCode }}</th>
+                {% endfor %}
+            </tr>
+            <tr>
+                {% for prediction in predictions %}
+                    <td>{{ (prediction.result|default('')).replace('_', ', ') }}</td>
+                {% endfor %}
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

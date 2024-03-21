@@ -1,0 +1,6 @@
+.env
+crawing-data/
+data/
+models/
+__pycache__/
+.venv/
