@@ -3,10 +3,9 @@ from DataAccess import DataAccess
 
 def main():
     ai = LotteryAi()
-    ai.train('tay-ninh')
-    ai.train('binh-thuan')
-    # prediction = ai.predict('soc-trang', 1)
-    # print(', '.join(prediction))
+    # ai.train('vietlot-655')
+    prediction = ai.predict('binh-duong', 1)
+    print(', '.join(prediction))
 
     # dataAccess = DataAccess()
     # res = dataAccess.getDashboardData()

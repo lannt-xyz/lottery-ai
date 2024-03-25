@@ -102,7 +102,8 @@ while processingDate <= endDate:
     # store the prizeMap to a file named `actual.csv` to sqlite db by DataAccess
     dataAccess = DataAccess()
     for key in prizzeMap:
-        dataAccess.insertActual(processingDateStr, key, '_'.join(prizzeMap[key]))
+        # convert prizzeMap[key] to string array before insert to the database
+        dataAccess.insertActual(processingDateStr, key, '_'.join(list(map(str, prizzeMap[key]))))
 
     # increase the processing date by 1 day
     processingDate += timedelta(days=1)

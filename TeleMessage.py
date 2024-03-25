@@ -18,6 +18,7 @@ bot = Bot(token=bot_token)
 
 # Get the current day of the week
 today = datetime.date.today()
+#today = datetime.datetime(2024, 3, 22)
 dayOfWeek = today.weekday()
 
 # Get the city codes of the current day
@@ -30,6 +31,9 @@ aiLot = LotteryAi()
 predictions = ['Today\'s Predictions:' + today.strftime('%A, %B %d, %Y') + ':']
 for cityCode in cityCodes:
     result = aiLot.predict(cityCode, 1)
+    print (result)
+
+
     predictions.append(f"- {cityCode}: {', '.join(result)}")
 
     # store the prediction to sqlite db by DataAccess
@@ -38,10 +42,10 @@ for cityCode in cityCodes:
     dataAccess.insertPrediction(today.strftime('%Y-%m-%d'), cityCode, joined)
 
 message = "\n".join(predictions)
-print(message)
+# print(message)
 
 # get chat id from .env file
 chat_id = os.getenv('CHAT_ID')
 
 # Send all predictions as a single message
-asyncio.run(bot.send_message(chat_id='1945394605', text=message))
+asyncio.run(bot.send_message(chat_id=chat_id, text=message))

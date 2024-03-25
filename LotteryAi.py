@@ -115,12 +115,7 @@ class LotteryAi:
         # Load and preprocess data 
         train_data, val_data, max_value = self.load_data(model_name)
         
-        # Get number of features from training data, if number_of_future is not None and not vietlot-655, use it
-        print(model_name, number_of_future)
-        if number_of_future and 'vietlot-655'.__ne__(model_name):
-            num_features = number_of_future
-        else:
-            num_features = train_data.shape[1]
+        num_features = train_data.shape[1]
 
         # Load the model from a file
         model_file = f'./models/{model_name}.keras'
@@ -137,5 +132,18 @@ class LotteryAi:
                 val_accuracy = float(f.read())
 
         results = [f"{num}({val_accuracy*100:.0f}%)" for num in predicted_numbers[0]]
+        if number_of_future == None or 'vietlot-655'.__eq__(model_name):
+           return results
+
+        # find the most frequent number in the result
+        if len(results) == 0:
+            return results
+        # each item on result find the frequency of each number and sort it
+        results = sorted(results, key=results.count, reverse=True)
+        # remove the duplicate number
+        results = list(dict.fromkeys(results))
+        # find the most frequent number by the first 3 numbers
+        if len(results) > number_of_future:
+            results = results[:number_of_future]
 
         return results

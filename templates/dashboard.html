@@ -13,10 +13,29 @@
             text-align: left;
         }
     </style>
+    <!-- add css link -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.3/css/dataTables.dataTables.min.css">
+
+    <!-- add js link -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
+    
+    <script type="text/javascript">
+        $(document).ready(function() {
+            new DataTable('#result', {
+                paging: false,
+                scrollCollapse: true,
+                scrollY: '70vh',
+                order: [[0, 'desc']]
+            });
+        });
+    </script>
 </head>
 <body>
     <h1>Predictions Dashboard</h1>
-    <table>
+    <table id ="result">
         <thead>
             <tr>
                 <th>Date</th>
@@ -38,8 +57,9 @@
                     {% set actual_numbers = (item.actual|default('')).split('_') %}
                     {% for number in prediction_numbers %}
                         {% set predictionNumber = number.split('(')[0] %}
-                        {% if predictionNumber in actual_numbers %}
-                            {{ predictionNumber }}
+                        {% set prediction = "{:02}".format(predictionNumber|int) %}
+                        {% if prediction in actual_numbers %}
+                            {{ prediction }}
                         {% endif %}
                     {% endfor %}
                 </td>
