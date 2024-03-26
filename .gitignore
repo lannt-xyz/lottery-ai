@@ -1,6 +1,8 @@
 .env
-crawing-data/
 data/
+crawing-data/
 models/
 __pycache__/
 .venv/
+crawing-data_keno/
+models_keno/

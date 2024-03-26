@@ -13,7 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code to the working directory
 COPY ./Craw.py ./app.py
 COPY ./XSBD.py .
-COPY ./Vietlot.py .
+COPY ./Vietlot655.py .
+COPY ./VietlotKeno.py .
 COPY ./LotteryAi.py .
 COPY ./DataAccess.py .
 COPY ./.env .
