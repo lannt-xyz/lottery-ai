@@ -1,0 +1,12 @@
+version: '3'
+services:
+  craw:
+    build:
+      context: .
+      dockerfile: CrawDockerfile
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./models_keno:/app/models
+      - ./crawing-data_keno:/app/crawing-data
+      - ./data:/app/data
+      - ./Craw.py:/app/app.py:ro

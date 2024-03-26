@@ -50,20 +50,20 @@ while processingDate <= endDate:
     # define the prizzeMap is empty
     prizzeMap = {}
 
-    # call the function craw to get the prizzeMap from XSBD
-    xsbdMap = XSBD().craw(processingDate)
-    if xsbdMap is not None:
-        prizzeMap = xsbdMap
+    # # call the function craw to get the prizzeMap from XSBD
+    # xsbdMap = XSBD().craw(processingDate)
+    # if xsbdMap is not None:
+    #     prizzeMap = xsbdMap
 
-    # call the function craw to get the prizzeMap from Vietlot, if None then not set the prizzeMap
-    vietlot655Map = Vietlot655().craw(processingDate)
-    if vietlot655Map is not None:
-        if prizzeMap is not None:
-            for key in vietlot655Map:
-                if key in prizzeMap:
-                    prizzeMap[key] = prizzeMap[key] + vietlot655Map[key]
-                else:
-                    prizzeMap[key] = vietlot655Map[key]
+    # # call the function craw to get the prizzeMap from Vietlot, if None then not set the prizzeMap
+    # vietlot655Map = Vietlot655().craw(processingDate)
+    # if vietlot655Map is not None:
+    #     if prizzeMap is not None:
+    #         for key in vietlot655Map:
+    #             if key in prizzeMap:
+    #                 prizzeMap[key] = prizzeMap[key] + vietlot655Map[key]
+    #             else:
+    #                 prizzeMap[key] = vietlot655Map[key]
 
     # call the function craw to get the prizzeMap from Vietlot, if None then not set the prizzeMap
     vietlotKenoMap = VietlotKeno().craw(processingDate)
