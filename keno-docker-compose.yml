@@ -1,6 +1,6 @@
 version: '3'
 services:
-  craw:
+  craw-keno:
     build:
       context: .
       dockerfile: CrawDockerfile
@@ -9,4 +9,4 @@ services:
       - ./models_keno:/app/models
       - ./crawing-data_keno:/app/crawing-data
       - ./data:/app/data
-      - ./Craw.py:/app/app.py:ro
+      - ./CrawKeno.py:/app/app.py:ro
