@@ -1,6 +1,6 @@
 import requests
-from datetime import datetime, timedelta
 import json
+from datetime import datetime
 from bs4 import BeautifulSoup
 
 # define constant for the URL
@@ -56,7 +56,7 @@ class VietlotKeno:
         # calculate loopIndex = ceil(rowNum / ROW_PER_PAGE)
         loopIndex = rowNum // ROW_PER_PAGE
         print('loopIndex: ', loopIndex)
-        while loopIndex > 0:
+        while loopIndex >= 0:
             crawData = self.crawData(processingDate, loopIndex, rowNum)
             if crawData is not None:
                 for data in crawData:
@@ -72,15 +72,20 @@ class VietlotKeno:
         payload['TotalRow'] = totalRow
         data = json.dumps(payload)
 
-        r = requests.post(URL, data=data, headers={'Content-Type': 'application/json', 'x-ajaxpro-method': 'ServerSideDrawResult'})
+        # try to post request, if error return None
+        try:
+            r = requests.post(URL, data=data, headers={'Content-Type': 'application/json', 'x-ajaxpro-method': 'ServerSideDrawResult'})
 
-        # the response is the text in json format, so we need to convert it to object
-        if r.status_code != 200:
-            print('Error: ', r.status_code)
+            # the response is the text in json format, so we need to convert it to object
+            if r.status_code != 200:
+                print('Error: ', r.status_code)
+                return None
+
+            # convert the response to object
+            return r.json()
+        except Exception as e:
+            print('Error: ', e)
             return None
-
-        # convert the response to object
-        return r.json()
 
     def crawData(self, processingDate: datetime, pageIndex: int = 0, totalRow: int = 0):
         # call the request function to get the response

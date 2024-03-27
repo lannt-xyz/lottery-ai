@@ -30,7 +30,7 @@ aiLot = LotteryAi()
 # Generate the predictions
 predictions = ['Today\'s Predictions:' + today.strftime('%A, %B %d, %Y') + ':']
 for cityCode in cityCodes:
-    result = aiLot.predict(cityCode, 1)
+    result = aiLot.predict(cityCode, None, 1)
     print (result)
 
 

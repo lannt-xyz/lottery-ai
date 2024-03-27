@@ -5,15 +5,16 @@ import tensorflow as tf
 from tensorflow import keras
 from keras import layers
 from art import text2art
-import os
 from dotenv import load_dotenv
 
 class LotteryAi:
     data_dir = ''
+    model_dir = ''
     def __init__(self):
         # Initialize any variables you need here
         load_dotenv()
         self.data_dir = os.getenv('STORE_DIR')
+        self.model_dir = os.getenv('MODEL_DIR')
         pass
 
     # Function to print the introduction of the program
@@ -68,7 +69,7 @@ class LotteryAi:
         history = model.fit(train_data, train_data, validation_data=(val_data, val_data), epochs=100)
 
         # Delete the previous model file
-        model_file = f'./models/{model_name}.keras'
+        model_file = f'{self.model_dir}/{model_name}.keras'
         try:
             os.remove(model_file)
         except FileNotFoundError:
@@ -79,7 +80,7 @@ class LotteryAi:
 
         # Get the validation accuracy from the history
         val_accuracy = history.history['val_accuracy'][-1]
-        with open(f'./models/{model_name}_val_accuracy.txt', 'w') as f:
+        with open(f'{self.model_dir}/{model_name}_val_accuracy.txt', 'w') as f:
             f.write(str(val_accuracy))
 
 
@@ -111,20 +112,23 @@ class LotteryAi:
         self.train_model(model_name)
 
     # Main function to run everything   
-    def predict(self, model_name, number_of_future=None):
+    def predict(self, model_name, validate_data=None, number_of_future=None):
         # Load and preprocess data 
         train_data, val_data, max_value = self.load_data(model_name)
-        
+        if validate_data != None:
+            val_data = np.array(validate_data)
+
         num_features = train_data.shape[1]
 
         # Load the model from a file
-        model_file = f'./models/{model_name}.keras'
+        model_file = f'{self.model_dir}/{model_name}.keras'
+        print('model_file: ', model_file)
         model = keras.models.load_model(model_file)
 
         # Predict numbers using trained model 
         predicted_numbers = self.predict_numbers(model, val_data, num_features)
         # check val_accurarcy file exist, if not, return empty list
-        val_accuracy_file = f'./models/{model_name}_val_accuracy.txt'
+        val_accuracy_file = f'{self.model_dir}/{model_name}_val_accuracy.txt'
         if not os.path.exists(val_accuracy_file):
             val_accuracy = 0
         else:
