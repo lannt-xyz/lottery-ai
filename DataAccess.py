@@ -71,6 +71,7 @@ class DataAccess:
             LEFT JOIN actuals a
             ON p.date = a.date AND p.cityCode = a.cityCode
             WHERE p.prediction IS NOT NULL
+            LIMIT 100
         '''
         data = pd.read_sql_query(query, self.conn)
         self.conn.close

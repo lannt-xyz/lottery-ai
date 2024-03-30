@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 lotMap = json.loads(os.getenv('LOT_MAP'))
 
-print(lotMap)
+# print(lotMap)
 
 
 @app.route('/with-date', methods=['POST'])
@@ -44,7 +44,7 @@ def get_prediction(targetDateStr):
         # do not contain any prediction then continue
         if len(result) == 0:
             continue
-        print(result)
+        # print(result)
         predictions.append({
             'cityCode': cityCode,
             'result': ', '.join(result['prediction'])
@@ -56,7 +56,7 @@ def get_prediction(targetDateStr):
 def dashboard():
     dataAccess = DataAccess()
     data=dataAccess.getDashboardData().to_dict(orient='records')
-    print(data)
+    # print(data)
     return render_template('dashboard.html', data=data)
 
 if __name__ == '__main__':
