@@ -29,31 +29,33 @@ def main():
     val_data = [data[key] for key in keys]
     # val_data is a two dimensional array of String, convert it to a two dimensional array of int
     val_data = [[int(val) for val in data] for data in val_data]
-    # print(val_data)
-
 
     prediction = ai.predict('vietlot-keno', val_data, None)
-    # # prediction has format like 10(0%) I want extract the number only
-    # prediction = [pred.split('(')[0] for pred in prediction]
-    # # convert prediction to int
-    # prediction = [int(pred) for pred in prediction]
-    # # sort the prediction
-    # prediction = sorted(prediction)
+    # prediction has format like 10(0%) I want extract the number only
+    prediction = [pred.split('(')[0] for pred in prediction]
+    # convert prediction to int
+    prediction = [int(pred) for pred in prediction]
+    # sort the prediction
+    prediction = sorted(prediction)
 
-    # # convert prediction to string
-    # prediction = [str(pred) for pred in prediction]
-    print(', '.join(prediction))
+    # Flatten val_data from 2D list to 1D list
+    flat_val_data = [item for sublist in val_data for item in sublist]
 
-    # # Flatten val_data from 2D list to 1D list
-    # flat_val_data = [item for sublist in val_data for item in sublist]
+    # Count the occurrences of each number in prediction in flat_val_data
+    counter = Counter(flat_val_data)
+    print(counter)
 
-    # # Count the occurrences of each number in prediction in flat_val_data
-    # counter = Counter(flat_val_data)
+    # with each prediction number, get the number of times it appears based on counter in format number:count
+    most_common_nums = [f'{pred}:{counter[pred]}' for pred in prediction]
 
-    # # Find the 3 most common numbers in prediction
-    # most_common_nums = [num for num, count in counter.most_common(3) if num in prediction]
+    # sort the most_common_nums by count descending
+    most_common_nums = sorted(most_common_nums, key=lambda x: int(x.split(':')[1]), reverse=True)
 
-    # print(', '.join(map(str, most_common_nums)))
+    # convert prediction to string
+    prediction = [str(pred) for pred in prediction]
+    print('Prediction: ', ', '.join(prediction))
+
+    print('Most common: ', ', '.join(map(str, most_common_nums)))
 
 if __name__ == "__main__":
     main()

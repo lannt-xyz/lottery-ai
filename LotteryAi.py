@@ -6,6 +6,7 @@ from tensorflow import keras
 from keras import layers
 from art import text2art
 from dotenv import load_dotenv
+from collections import Counter
 
 class LotteryAi:
     data_dir = ''
@@ -151,3 +152,45 @@ class LotteryAi:
             results = results[:number_of_future]
 
         return results
+
+    def deep_predict(self, model_name, validate_data=None, number_of_future=None):
+        basePrediction = self.predict(model_name, None, None)
+
+        # prediction has format like 10(0%) I want extract the number only
+        prediction = [pred.split('(')[0] for pred in basePrediction]
+        # convert prediction to int
+        prediction = [int(pred) for pred in prediction]
+        # sort the prediction
+        prediction = sorted(prediction)
+        # count the appear time of each number in prediction
+        predictionCounter = Counter(prediction)
+        # get all number has the appear time equals to the most common number in prediction
+        most_common_prediction = [pred for pred in prediction if predictionCounter[pred] == predictionCounter.most_common(1)[0][1]]
+        # distinct the most_common_prediction
+        most_common_prediction = list(set(most_common_prediction))
+
+        # Load and preprocess data 
+        train_data, val_data, max_value = self.load_data(model_name)
+
+        # Flatten val_data from 2D list to 1D list
+        flat_val_data = [item for sublist in val_data for item in sublist]
+
+        # Count the occurrences of each number in prediction in flat_val_data
+        counter = Counter(flat_val_data)
+
+        # with each prediction number, get the number of times it appears based on counter in format number:count
+        most_common_nums = [f'{pred}:{counter[pred]}' for pred in most_common_prediction]
+
+        # sort the most_common_nums by count descending
+        most_common_nums = sorted(most_common_nums, key=lambda x: int(x.split(':')[1]), reverse=True)
+
+        # find the number_of_future in most_common_nums
+        if len(most_common_nums) == 0:
+            return []
+        if len(most_common_nums) > number_of_future:
+            most_common_nums = most_common_nums[:number_of_future]
+
+        # remove semicolon on each item
+        most_common_nums = [item.split(':')[0] for item in most_common_nums]
+
+        return most_common_nums
