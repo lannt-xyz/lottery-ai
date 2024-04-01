@@ -31,11 +31,14 @@ if os.path.exists(checkpointFile):
             # increase the startDate by 1 day
             startDate += timedelta(days=1)
 
-# TODO: remove debug code
-#endDate = datetime.strptime('2019-07-01', '%Y-%m-%d')
-
 # define endDate is the previous day of the system date
 endDate = datetime.now()
+
+
+# TODO: remove debug code
+# startDate = datetime.strptime('2024-03-27', '%Y-%m-%d')
+# endDate = datetime.strptime('2024-03-27', '%Y-%m-%d')
+
 
 print("Start Crawing: " + startDate.strftime('%Y-%m-%d'))
 
