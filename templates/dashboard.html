@@ -1,96 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Predictions Dashboard</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
-        }
-    </style>
-    <!-- add css link -->
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.3/css/dataTables.dataTables.min.css">
-    <style>
-        .group1 {
-            background-color: #ccfaff !important; /* color for group 1 */
-        }
-        .group2 {
-            background-color: #ffffff !important; /* color for group 2 */
-        }
-    </style>
-
-    <!-- add js link -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
-    
-    <script type="text/javascript">
-        $(document).ready(function() {
-            var table = new DataTable('#result', {
-                paging: false,
-                scrollCollapse: true,
-                scrollY: '70vh',
-                order: [[0, 'desc']]
-            });
-
-            var lastValue = null;
-            var colorClass = 'group1';
-
-            table.rows().every(function() {
-                var data = this.data();
-                var value = data[0]; // get the value of the first column
-
-                if (value !== lastValue) {
-                    // switch color class every time the value changes
-                    colorClass = (colorClass === 'group1') ? 'group2' : 'group1';
-                    lastValue = value;
-                }
-
-                $(this.node()).addClass(colorClass);
-            }); 
-        });
-    </script>
+    <title>Prediction Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>Predictions Dashboard</h1>
-    <table id ="result">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>City Code</th>
-                <th>Prediction</th>
-                <th>Actual</th>
-                <th>Matched</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in data %}
-            <tr>
-                <td>{{ item.date }}</td>
-                <td>{{ item.cityCode }}</td>
-                <td>{{ (item.prediction|default('')).replace('_', ', ') }}</td>
-                <td>{{ (item.actual|default('')).replace('_', ', ') }}</td>
-                <td>
-                    {% set prediction_numbers = (item.prediction|default('')).split('_') %}
-                    {% set actual_numbers = (item.actual|default('')).split('_') %}
-                    {% for number in prediction_numbers %}
-                        {% set predictionNumber = number.split('(')[0] %}
-                        {% set prediction = "{:02}".format(predictionNumber|int) %}
-                        {% set matched = actual_numbers|length - (actual_numbers|reject('equalto', prediction)|list)|length %}
-                        {% if matched > 0 %}
-                            {{ prediction }}({{ matched }})
-                        {% endif %}
-                    {% endfor %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <canvas id="myChart"></canvas>
+    <script>
+        fetch('/dashboard-data')
+            .then(response => response.json())
+            .then(data => {
+                var ctx = document.getElementById('myChart').getContext('2d');
+                var myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(item => item.label),
+                        datasets: [{
+                            label: '# of Matched Numbers',
+                            data: data.map(item => item.count),
+                            backgroundColor: data.map(item => {
+                                let color = item.color;
+                                color = color.replace('#','');
+                                let r = parseInt(color.substring(0,2), 16);
+                                let g = parseInt(color.substring(2,4), 16);
+                                let b = parseInt(color.substring(4,6), 16);
+                                return 'rgba(' + r + ',' + g + ',' + b + ',0.2)';
+                            }),
+                            borderColor: data.map(item => item.color),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            });
+    </script>
 </body>
 </html>

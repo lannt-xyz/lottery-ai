@@ -64,7 +64,7 @@ class DataAccess:
         self.conn.close
         return data
 
-    def getDashboardData(self):
+    def getResults(self):
         query = '''
             SELECT p.date, p.cityCode, p.prediction, IFNULL(a.actual, '') as actual
             FROM predictions p
@@ -72,6 +72,19 @@ class DataAccess:
             ON p.date = a.date AND p.cityCode = a.cityCode
             WHERE p.prediction IS NOT NULL
             LIMIT 100
+        '''
+        data = pd.read_sql_query(query, self.conn)
+        self.conn.close
+
+        return data
+
+    def getAllResults(self):
+        query = '''
+            SELECT p.date, p.cityCode, p.prediction, IFNULL(a.actual, '') as actual
+            FROM predictions p
+            LEFT JOIN actuals a
+            ON p.date = a.date AND p.cityCode = a.cityCode
+            WHERE p.prediction IS NOT NULL
         '''
         data = pd.read_sql_query(query, self.conn)
         self.conn.close

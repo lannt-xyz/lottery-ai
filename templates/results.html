@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Predictions Results</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+    <!-- add css link -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.3/css/dataTables.dataTables.min.css">
+    <style>
+        .group1 {
+            background-color: #ccfaff !important; /* color for group 1 */
+        }
+        .group2 {
+            background-color: #ffffff !important; /* color for group 2 */
+        }
+    </style>
+
+    <!-- add js link -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
+    
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var table = new DataTable('#result', {
+                paging: false,
+                scrollCollapse: true,
+                scrollY: '70vh',
+                order: [[0, 'desc']]
+            });
+
+            var lastValue = null;
+            var colorClass = 'group1';
+
+            table.rows().every(function() {
+                var data = this.data();
+                var value = data[0]; // get the value of the first column
+
+                if (value !== lastValue) {
+                    // switch color class every time the value changes
+                    colorClass = (colorClass === 'group1') ? 'group2' : 'group1';
+                    lastValue = value;
+                }
+
+                $(this.node()).addClass(colorClass);
+            }); 
+        });
+    </script>
+</head>
+<body>
+    <h1>Predictions Results</h1>
+    <table id ="result">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>City Code</th>
+                <th>Prediction</th>
+                <th>Actual</th>
+                <th>Matched</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in data %}
+            <tr>
+                <td>{{ item.date }}</td>
+                <td>{{ item.cityCode }}</td>
+                <td>{{ (item.prediction|default('')).replace('_', ', ') }}</td>
+                <td>{{ (item.actual|default('')).replace('_', ', ') }}</td>
+                <td>
+                    {% set prediction_numbers = (item.prediction|default('')).split('_') %}
+                    {% set actual_numbers = (item.actual|default('')).split('_') %}
+                    {% for number in prediction_numbers %}
+                        {% set predictionNumber = number.split('(')[0] %}
+                        {% set prediction = "{:02}".format(predictionNumber|int) %}
+                        {% set matched = actual_numbers|length - (actual_numbers|reject('equalto', prediction)|list)|length %}
+                        {% if matched > 0 %}
+                            {{ prediction }}({{ matched }})
+                        {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

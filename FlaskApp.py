@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from datetime import datetime
 import json
 import os
@@ -44,7 +44,7 @@ def get_prediction(targetDateStr):
         # do not contain any prediction then continue
         if len(result) == 0:
             continue
-        # print(result)
+
         predictions.append({
             'cityCode': cityCode,
             'result': ', '.join(result['prediction'])
@@ -52,12 +52,78 @@ def get_prediction(targetDateStr):
 
     return render_template('home.html', today=targetDate.strftime('%Y-%m-%d'), dayOfWeekName=dayOfWeekName, predictions=predictions)
 
+@app.route('/results', methods=['GET'])
+def results():
+    dataAccess = DataAccess()
+    data=dataAccess.getResults().to_dict(orient='records')
+
+    return render_template('results.html', data=data)
+
+@app.route('/dashboard-data', methods=['GET'])
+def dashboardData():
+    dataAccess = DataAccess()
+    data=dataAccess.getAllResults().to_dict(orient='records')
+    dashboardData = {}
+    # get data from environment variable named LOT_MAP
+    lotMap = json.loads(os.getenv('LOT_MAP'))
+    # generate 7 colors for the chart coressponding with the data on the lotMap
+    colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#00FFFF', '#FF00FF', '#C0C0C0']
+
+    # loop through the data, with each city_code, get the prediction and actual
+    for row in data:
+        cityCode = row['cityCode']
+        # return soon if cityCode is vietlot-655
+        if cityCode == 'vietlot-655':
+            continue
+
+        prediction = row['prediction']
+        actual = row['actual']
+        actuals = actual.split('_')
+
+        predictions = prediction.split('_')
+        # predictions's item is in format ##(%##), extract the number only
+        predictions = [x.split('(')[0] for x in predictions]
+        # format the number in 2 digits
+        predictions = [x.zfill(2) for x in predictions]
+
+        # find the key of lotMap that contain cityCode
+        lotMapKey = [key for key, value in lotMap.items() if cityCode in value]
+        if len(lotMapKey) == 0:
+            continue
+        # get the color for the cityCode
+        color = colors[int(lotMapKey[0])]
+
+        # count the number of time the prediction appears in the actual
+        count = 0
+        for p in predictions:
+            # count p in actual
+            count += actuals.count(p)
+
+        # if dashboarData contain key cityCode, add the count to the existing count, and set the color for the cityCode
+        if cityCode in dashboardData:
+            dashboardData[cityCode]['count'] += count
+        else:
+            dashboardData[cityCode] = {
+                'count': count,
+                'color': color,
+                'order': lotMapKey[0]
+            }
+
+    # sort the dashboardData by order
+    dashboardData = dict(sorted(dashboardData.items(), key=lambda item: item[1]['order']))
+    # convert dashboardData to list with the key of dashboardData is included in the value
+    dashboardData = [{'label': key, **value} for key, value in dashboardData.items()]
+    # by using the order of data, I want to convert it to name of day of week
+    dayOfWeekName = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    # add the name of day of week to the label of data by String concatenation
+    for i in range(len(dashboardData)):
+        dashboardData[i]['label'] = dayOfWeekName[int(dashboardData[i]['order'])] + ' - ' + dashboardData[i]['label']
+
+    return jsonify(dashboardData)
+
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
-    dataAccess = DataAccess()
-    data=dataAccess.getDashboardData().to_dict(orient='records')
-    # print(data)
-    return render_template('dashboard.html', data=data)
+    return render_template('dashboard.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5001)
