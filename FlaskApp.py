@@ -7,7 +7,7 @@ from DataAccess import DataAccess
 
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 lotMap = json.loads(os.getenv('LOT_MAP'))
 

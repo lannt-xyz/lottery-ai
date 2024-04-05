@@ -10,8 +10,6 @@ services:
       - 443:5000
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./models:/app/models
-      - ./crawing-data:/app/crawing-data
       - ./data:/app/data
       - .env:/app/.env:ro
     environment:
