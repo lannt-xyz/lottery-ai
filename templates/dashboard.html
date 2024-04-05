@@ -1,44 +1,39 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Prediction Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <canvas id="myChart"></canvas>
-    <script>
-        fetch('/dashboard-data')
-            .then(response => response.json())
-            .then(data => {
-                var ctx = document.getElementById('myChart').getContext('2d');
-                var myChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: data.map(item => item.label),
-                        datasets: [{
-                            label: '# of Matched Numbers',
-                            data: data.map(item => item.count),
-                            backgroundColor: data.map(item => {
-                                let color = item.color;
-                                color = color.replace('#','');
-                                let r = parseInt(color.substring(0,2), 16);
-                                let g = parseInt(color.substring(2,4), 16);
-                                let b = parseInt(color.substring(4,6), 16);
-                                return 'rgba(' + r + ',' + g + ',' + b + ',0.2)';
-                            }),
-                            borderColor: data.map(item => item.color),
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
+{% extends "base.html" %}
+
+{% block content %}
+<canvas id="myChart"></canvas>
+<script>
+    fetch('/dashboard-data')
+        .then(response => response.json())
+        .then(data => {
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(item => item.label),
+                    datasets: [{
+                        label: '# of Matched Numbers',
+                        data: data.map(item => item.count),
+                        backgroundColor: data.map(item => {
+                            let color = item.color;
+                            color = color.replace('#', '');
+                            let r = parseInt(color.substring(0, 2), 16);
+                            let g = parseInt(color.substring(2, 4), 16);
+                            let b = parseInt(color.substring(4, 6), 16);
+                            return 'rgba(' + r + ',' + g + ',' + b + ',0.2)';
+                        }),
+                        borderColor: data.map(item => item.color),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
                         }
                     }
-                });
+                }
             });
-    </script>
-</body>
-</html>
+        });
+</script>
+{% endblock %}
