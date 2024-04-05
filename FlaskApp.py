@@ -11,9 +11,6 @@ app = Flask(__name__)
 
 lotMap = json.loads(os.getenv('LOT_MAP'))
 
-# print(lotMap)
-
-
 @app.route('/with-date', methods=['POST'])
 def handle_date():
     date_str = request.form.get('date')
@@ -55,7 +52,21 @@ def get_prediction(targetDateStr):
 @app.route('/results', methods=['GET'])
 def results():
     dataAccess = DataAccess()
-    data=dataAccess.getResults().to_dict(orient='records')
+    data = dataAccess.getResults().to_dict(orient='records')
+
+    for item in data:
+        prediction_numbers = item.get('prediction', '').split('_')
+        actual_numbers = item.get('actual', '').split('_')
+        matched = ''
+        for number in prediction_numbers:
+            predictionNumber = number.split('(')[0]
+            prediction = "{:02}".format(int(predictionNumber))
+            matched_count = len(actual_numbers) - len([x for x in actual_numbers if x != prediction])
+            if matched_count > 0:
+                matched += ' ' + prediction + '(' + str(matched_count) + ')'
+        item['matched'] = matched
+        item['prediction'] = item.get('prediction', '').replace('_', ', ')
+        item['actual'] = item.get('actual', '').replace('_', ', ')
 
     return render_template('results.html', data=data)
 
