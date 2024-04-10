@@ -11,9 +11,8 @@ COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the application code to the working directory
-COPY ./TeleMessage.py app.py
-COPY ./LotteryAi.py .
-COPY ./DataAccess.py .
-COPY ./.env .
+COPY ../Tele/*.py ./Tele/
+COPY ../Utils/*.py ./Utils/
+COPY ../DB/*.py ./DB/
 
-CMD [ "python", "./app.py" ]
+CMD [ "python", "-m", "Tele.TeleMessage" ]

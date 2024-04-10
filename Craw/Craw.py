@@ -1,17 +1,18 @@
 from dotenv import load_dotenv
 import os
 from datetime import datetime, timedelta
-from LotteryAi import LotteryAi
-from XSBD import XSBD
-from Vietlot655 import Vietlot655
-from VietlotKeno import VietlotKeno
-from DataAccess import DataAccess
+
+from Utils.LotteryAi import LotteryAi
+from Utils.XSBD import XSBD
+from Utils.Vietlot655 import Vietlot655
+# from Utils.VietlotKeno import VietlotKeno
+from DB.DataAccess import DataAccess
 
 # load .env variables
 load_dotenv()
 
 # create the output directory if not exist
-dir_name = os.getenv('OUTDIR') + '/xosobinhduong'
+dir_name = os.getenv('STORE_DIR')
 if not os.path.exists(dir_name):
     os.mkdir(dir_name)
 
@@ -68,15 +69,15 @@ while processingDate <= endDate:
                 else:
                     prizzeMap[key] = vietlot655Map[key]
 
-    # call the function craw to get the prizzeMap from Vietlot, if None then not set the prizzeMap
-    vietlotKenoMap = VietlotKeno().craw(processingDate)
-    if vietlotKenoMap is not None:
-        if prizzeMap is not None:
-            for key in vietlotKenoMap:
-                if key in prizzeMap:
-                    prizzeMap[key] = prizzeMap[key] + vietlotKenoMap[key]
-                else:
-                    prizzeMap[key] = vietlotKenoMap[key]
+    # # call the function craw to get the prizzeMap from Vietlot, if None then not set the prizzeMap
+    # vietlotKenoMap = VietlotKeno().craw(processingDate)
+    # if vietlotKenoMap is not None:
+    #     if prizzeMap is not None:
+    #         for key in vietlotKenoMap:
+    #             if key in prizzeMap:
+    #                 prizzeMap[key] = prizzeMap[key] + vietlotKenoMap[key]
+    #             else:
+    #                 prizzeMap[key] = vietlotKenoMap[key]
 
     # if prizzeMap is None then increase the processing date by 1 day
     if prizzeMap is None:

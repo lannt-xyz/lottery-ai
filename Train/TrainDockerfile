@@ -11,12 +11,7 @@ COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the application code to the working directory
-COPY ./Craw.py ./app.py
-COPY ./XSBD.py .
-COPY ./Vietlot655.py .
-COPY ./VietlotKeno.py .
-COPY ./LotteryAi.py .
-COPY ./DataAccess.py .
-COPY ./.env .
+COPY ../Train/*.py ./Train
+COPY ../Utils/*.py ./Utils
 
-CMD [ "python", "./app.py" ]
+CMD [ "python", "-m", "Train:Train" ]

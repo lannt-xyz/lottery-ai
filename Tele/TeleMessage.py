@@ -1,11 +1,13 @@
-from telegram import Bot
-from LotteryAi import LotteryAi
 import datetime
 import json
 import os
-from dotenv import load_dotenv
 import asyncio
-from DataAccess import DataAccess
+
+from dotenv import load_dotenv
+from telegram import Bot
+
+from Utils.LotteryAi import LotteryAi
+from DB.DataAccess import DataAccess
 
 load_dotenv()
 
@@ -18,7 +20,7 @@ bot = Bot(token=bot_token)
 
 # Get the current day of the week
 today = datetime.date.today()
-#today = datetime.datetime(2024, 3, 22)
+#today = datetime.datetime(2024, 4, 6)
 dayOfWeek = today.weekday()
 
 # Get the city codes of the current day

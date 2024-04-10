@@ -1,13 +1,15 @@
-from flask import Flask, render_template, request, jsonify
-from datetime import datetime
 import json
 import os
 from dotenv import load_dotenv
-from DataAccess import DataAccess
+
+from flask import Flask, render_template, request, jsonify
+from datetime import datetime
+
+from DB.DataAccess import DataAccess
 
 load_dotenv()
 
-app = Flask(__name__, static_folder='static')
+app = Flask(__name__, static_folder='static', template_folder='templates')
 
 lotMap = json.loads(os.getenv('LOT_MAP'))
 
@@ -125,7 +127,7 @@ def dashboardData():
     # convert dashboardData to list with the key of dashboardData is included in the value
     dashboardData = [{'label': key, **value} for key, value in dashboardData.items()]
     # by using the order of data, I want to convert it to name of day of week
-    dayOfWeekName = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    dayOfWeekName = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
     # add the name of day of week to the label of data by String concatenation
     for i in range(len(dashboardData)):
         dashboardData[i]['label'] = dayOfWeekName[int(dashboardData[i]['order'])] + ' - ' + dashboardData[i]['label']

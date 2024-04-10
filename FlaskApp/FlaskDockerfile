@@ -11,11 +11,12 @@ COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the application code to the working directory
-COPY ./FlaskApp.py ./app.py
-COPY ./DataAccess.py .
-COPY ./templates ./templates
-COPY ./static ./static
-COPY ./.env .
+COPY ../__init__.py .
+COPY ../FlaskApp/*.py ./FlaskApp/
+COPY ../FlaskApp/static ./FlaskApp/static
+COPY ../FlaskApp/templates ./FlaskApp/templates
+COPY ../Utils/*.py ./Utils/
+COPY ../DB/*.py ./DB/
 
 # Install Gunicorn
 RUN pip install gunicorn
@@ -26,5 +27,5 @@ EXPOSE 5000
 # Set the environment variable for Flask
 ENV FLASK_APP=app.py
 
-# Run the Flask application with Gunicorn
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
+# With the target is the FlaskApp/FlaskApp.py, run the Flask application with Gunicorn in production mode
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "FlaskApp.FlaskApp:app"]

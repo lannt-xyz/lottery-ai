@@ -6,7 +6,10 @@
     fetch('/dashboard-data')
         .then(response => response.json())
         .then(data => {
-            var ctx = document.getElementById('myChart').getContext('2d');
+            var canvas = document.getElementById('myChart');
+            canvas.style.height = '50vh';
+
+            var ctx = canvas.getContext('2d');
             var myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {

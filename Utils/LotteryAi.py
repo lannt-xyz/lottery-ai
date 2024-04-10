@@ -155,6 +155,8 @@ class LotteryAi:
 
     def deep_predict(self, model_name, validate_data=None, number_of_future=None):
         basePrediction = self.predict(model_name, None, None)
+        if number_of_future == None or 'vietlot-655'.__eq__(model_name):
+            return basePrediction
 
         # prediction has format like 10(0%) I want extract the number only
         prediction = [pred.split('(')[0] for pred in basePrediction]

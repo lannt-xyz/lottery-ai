@@ -3,9 +3,16 @@ services:
   craw:
     build:
       context: .
-      dockerfile: CrawDockerfile
+      dockerfile: Craw/CrawDockerfile
     volumes:
       - /etc/localtime:/etc/localtime:ro
+      - ./.env:/app/.env:ro
       - ./models:/app/models
       - ./crawing-data:/app/crawing-data
       - ./data:/app/data
+    networks:
+      - craw
+
+networks:
+  craw:
+    driver: bridge

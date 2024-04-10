@@ -8,6 +8,5 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ./models:/app/models
       - ./crawing-data:/app/crawing-data
-      - ./data:/app/data
     environment:
-      - CHANELS=an-giang,binh-thuan,vinh-long,binh-duong,tra-vinh,tp-hcm,long-an,binh-phuoc,hau-giang,vietlot-655
+      - CHANELS=ben-tre

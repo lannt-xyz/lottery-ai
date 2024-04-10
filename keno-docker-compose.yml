@@ -10,3 +10,10 @@ services:
       - ./crawing-data_keno:/app/crawing-data
       - ./data:/app/data
       - ./CrawKeno.py:/app/app.py:ro
+    networks:
+      - craw-keno
+
+networks:
+  craw-keno:
+    driver: bridge
+
