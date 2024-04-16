@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from Utils.LotteryAi import LotteryAi
 from Utils.XSBD import XSBD
 from Utils.Vietlot655 import Vietlot655
-# from Utils.VietlotKeno import VietlotKeno
+from Utils.VietlotKeno import VietlotKeno
 from DB.DataAccess import DataAccess
 
 # load .env variables
@@ -36,12 +36,19 @@ if os.path.exists(checkpointFile):
 endDate = datetime.now()
 
 
-# TODO: remove debug code
-# startDate = datetime.strptime('2024-03-27', '%Y-%m-%d')
-# endDate = datetime.strptime('2024-03-27', '%Y-%m-%d')
+# get the environment variables, if not set then use the default value
+envStartDate = os.getenv('CRAWING_START_DATE')
+envEndDate = os.getenv('CRAWING_END_DATE')
+print('Crawing from: ', envStartDate)
+print('Crawing to: ', envEndDate)
+startDate = datetime.strptime(envStartDate, '%Y-%m-%d')
+endDate = datetime.strptime(envEndDate, '%Y-%m-%d')
 
+crawingTarget = os.getenv('CRAWING_TARGET')
+crawingTarget = crawingTarget.split(',')
 
 print("Start Crawing: " + startDate.strftime('%Y-%m-%d'))
+print("Crawing Target: " + str(crawingTarget))
 
 # define the processing date is the startDate
 processingDate = startDate
@@ -55,29 +62,32 @@ while processingDate <= endDate:
     prizzeMap = {}
 
     # call the function craw to get the prizzeMap from XSBD
-    xsbdMap = XSBD().craw(processingDate)
-    if xsbdMap is not None:
-        prizzeMap = xsbdMap
+    if 'XSBD' in crawingTarget:
+        xsbdMap = XSBD().craw(processingDate)
+        if xsbdMap is not None:
+            prizzeMap = xsbdMap
 
     # call the function craw to get the prizzeMap from Vietlot, if None then not set the prizzeMap
-    vietlot655Map = Vietlot655().craw(processingDate)
-    if vietlot655Map is not None:
-        if prizzeMap is not None:
-            for key in vietlot655Map:
-                if key in prizzeMap:
-                    prizzeMap[key] = prizzeMap[key] + vietlot655Map[key]
-                else:
-                    prizzeMap[key] = vietlot655Map[key]
+    if 'Vietlot655' in crawingTarget:
+        vietlot655Map = Vietlot655().craw(processingDate)
+        if vietlot655Map is not None:
+            if prizzeMap is not None:
+                for key in vietlot655Map:
+                    if key in prizzeMap:
+                        prizzeMap[key] = prizzeMap[key] + vietlot655Map[key]
+                    else:
+                        prizzeMap[key] = vietlot655Map[key]
 
-    # # call the function craw to get the prizzeMap from Vietlot, if None then not set the prizzeMap
-    # vietlotKenoMap = VietlotKeno().craw(processingDate)
-    # if vietlotKenoMap is not None:
-    #     if prizzeMap is not None:
-    #         for key in vietlotKenoMap:
-    #             if key in prizzeMap:
-    #                 prizzeMap[key] = prizzeMap[key] + vietlotKenoMap[key]
-    #             else:
-    #                 prizzeMap[key] = vietlotKenoMap[key]
+    # call the function craw to get the prizzeMap from Vietlot, if None then not set the prizzeMap
+    if 'VietlotKeno' in crawingTarget:
+        vietlotKenoMap = VietlotKeno().craw(processingDate)
+        if vietlotKenoMap is not None:
+            if prizzeMap is not None:
+                for key in vietlotKenoMap:
+                    if key in prizzeMap:
+                        prizzeMap[key] = prizzeMap[key] + vietlotKenoMap[key]
+                    else:
+                        prizzeMap[key] = vietlotKenoMap[key]
 
     # if prizzeMap is None then increase the processing date by 1 day
     if prizzeMap is None:
@@ -116,9 +126,12 @@ while processingDate <= endDate:
         mustRetrain.append(cityCode)
 
     processingDateStr = processingDate.strftime('%Y-%m-%d')
-    # store the processing date to the file for the next run as a checkpoint
-    with open(checkpointFile, 'w') as f:
-        f.write(processingDateStr)
+
+    # if envStartDate is not None or envStartDate is not empty then
+    if envStartDate is not None and envStartDate != '':
+        # store the processing date to the file for the next run as a checkpoint
+        with open(checkpointFile, 'w') as f:
+            f.write(processingDateStr)
 
     # store the prizeMap to a file named `actual.csv` to sqlite db by DataAccess
     dataAccess = DataAccess()

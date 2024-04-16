@@ -113,13 +113,14 @@ class LotteryAi:
         self.train_model(model_name)
 
     # Main function to run everything   
-    def predict(self, model_name, validate_data=None, number_of_future=None):
+    def predict(self, model_name, number_of_future=None):
         # Load and preprocess data 
         train_data, val_data, max_value = self.load_data(model_name)
-        if validate_data != None:
-            val_data = np.array(validate_data)
 
-        num_features = train_data.shape[1]
+        if number_of_future == None or 'vietlot-655'.__eq__(model_name):
+            num_features = train_data.shape[1]
+        else:
+            num_features = number_of_future
 
         # Load the model from a file
         model_file = f'{self.model_dir}/{model_name}.keras'
@@ -128,32 +129,12 @@ class LotteryAi:
 
         # Predict numbers using trained model 
         predicted_numbers = self.predict_numbers(model, val_data, num_features)
-        # check val_accurarcy file exist, if not, return empty list
-        val_accuracy_file = f'{self.model_dir}/{model_name}_val_accuracy.txt'
-        if not os.path.exists(val_accuracy_file):
-            val_accuracy = 0
-        else:
-            with open(val_accuracy_file, 'r') as f:
-                val_accuracy = float(f.read())
+        res = predicted_numbers[0]
 
-        results = [f"{num}({val_accuracy*100:.0f}%)" for num in predicted_numbers[0]]
-        if number_of_future == None or 'vietlot-655'.__eq__(model_name):
-           return results
+        # Convert the predicted numbers to a list of strings
+        return [str(num) for num in res]
 
-        # find the most frequent number in the result
-        if len(results) == 0:
-            return results
-        # each item on result find the frequency of each number and sort it
-        results = sorted(results, key=results.count, reverse=True)
-        # remove the duplicate number
-        results = list(dict.fromkeys(results))
-        # find the most frequent number by the first 3 numbers
-        if len(results) > number_of_future:
-            results = results[:number_of_future]
-
-        return results
-
-    def deep_predict(self, model_name, validate_data=None, number_of_future=None):
+    def deep_predict(self, model_name, number_of_future=None):
         basePrediction = self.predict(model_name, None, None)
         if number_of_future == None or 'vietlot-655'.__eq__(model_name):
             return basePrediction
