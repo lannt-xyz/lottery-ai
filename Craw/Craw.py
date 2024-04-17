@@ -39,16 +39,21 @@ endDate = datetime.now()
 # get the environment variables, if not set then use the default value
 envStartDate = os.getenv('CRAWING_START_DATE')
 envEndDate = os.getenv('CRAWING_END_DATE')
-print('Crawing from: ', envStartDate)
-print('Crawing to: ', envEndDate)
-startDate = datetime.strptime(envStartDate, '%Y-%m-%d')
-endDate = datetime.strptime(envEndDate, '%Y-%m-%d')
+if envStartDate is not None and envStartDate != '':
+    print('Crawing from: ', envStartDate)
+    startDate = datetime.strptime(envStartDate, '%Y-%m-%d')
+if envEndDate is not None and envEndDate != '':
+    print('Crawing to: ', envEndDate)
+    endDate = datetime.strptime(envEndDate, '%Y-%m-%d')
 
 crawingTarget = os.getenv('CRAWING_TARGET')
-crawingTarget = crawingTarget.split(',')
+if crawingTarget is not None and crawingTarget != '':
+    crawingTarget = crawingTarget.split(',')
+    print("Crawing Target: " + str(crawingTarget))
+else:
+    crawingTarget = ['XSBD', 'Vietlot655']
 
 print("Start Crawing: " + startDate.strftime('%Y-%m-%d'))
-print("Crawing Target: " + str(crawingTarget))
 
 # define the processing date is the startDate
 processingDate = startDate
