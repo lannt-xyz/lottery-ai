@@ -1,0 +1,23 @@
+version: '3'
+services:
+  craw:
+    build:
+      context: .
+      dockerfile: Craw/CrawDockerfile
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./.env:/app/.env:ro
+      - ./models:/app/models
+      - ./crawing-data:/app/crawing-data
+      - ./data:/app/data
+    environment:
+        #Vietlot655,XSBD,VietlotKeno
+      - CRAWING_TARGET=Vietlot655
+      - CRAWING_START_DATE=2024-04-13
+      - CRAWING_END_DATE=2024-04-13
+    networks:
+      - craw
+
+networks:
+  craw:
+    driver: bridge
