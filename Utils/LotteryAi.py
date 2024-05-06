@@ -69,12 +69,14 @@ class LotteryAi:
         # Fit the model on the training data and validate on the validation data for 100 epochs
         history = model.fit(train_data, train_data, validation_data=(val_data, val_data), epochs=100)
 
-        # Delete the previous model file
+        # Create the model directory if it does not exist
+        if not os.path.exists(self.model_dir):
+            os.mkdir(self.model_dir)
+
+        # Delete the previous model file if it exists
         model_file = f'{self.model_dir}/{model_name}.keras'
-        try:
+        if os.path.exists(model_file):
             os.remove(model_file)
-        except FileNotFoundError:
-            pass
 
         # Save the model to a file
         model.save(model_file)
