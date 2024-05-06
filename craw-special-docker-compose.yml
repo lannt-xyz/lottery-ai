@@ -1,0 +1,23 @@
+version: '3'
+services:
+  craw_1st_spec:
+    build:
+      context: .
+      dockerfile: Craw/CrawDockerfile
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./.env:/app/.env:ro
+      - ./models_1st_spec:/app/models
+      - ./crawing-data:/app/crawing-data
+      - ./data:/app/data
+    environment:
+      - CRAWING_TARGET=KQXSVNFirstSpecial
+      - STORE_DIR=./crawing-data/xosobinhduong_1st_spec
+      - CHECKPOINT=checkpoint_kqxsvn.txt
+    networks:
+      - craw_1st_spec
+    command: [ "python", "-m", "Craw.Craw" ]
+
+networks:
+  craw_1st_spec:
+    driver: bridge

@@ -1,0 +1,24 @@
+version: '3'
+services:
+  tele_1st_spec:
+    build:
+      context: .
+      dockerfile: Tele/TeleDockerfile
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - .env:/app/.env:ro
+      - ./models_1st_spec:/app/models_1st_spec
+      - ./crawing-data:/app/crawing-data
+      - ./data:/app/data
+      - ./Tele/TeleMessage.py:/app/Tele/TeleMessage.py:ro
+    environment:
+      - STORE_DIR=./crawing-data/xosobinhduong_1st_spec
+      - MODEL_DIR=./models_1st_spec
+      - PREDICTION_NUMBER=2
+    networks:
+      - tele_1st_spec
+
+networks:
+  tele_1st_spec:
+    driver: bridge
+
