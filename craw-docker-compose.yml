@@ -12,6 +12,9 @@ services:
       - ./data:/app/data
     networks:
       - craw
+    environment:
+      - CRAWING_TARGET=XSBD,Vietlot655
+      - CRAWING_START_DATE=2019-06-03
 
 networks:
   craw:

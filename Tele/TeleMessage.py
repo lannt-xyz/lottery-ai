@@ -29,10 +29,16 @@ cityCodes = lotMap[str(dayOfWeek)]
 # Initialize the LotteryAi
 aiLot = LotteryAi()
 
+numberOfPredictionNumber = json.loads(os.getenv('PREDICTION_NUMBER'))
+if numberOfPredictionNumber is None:
+    numberOfPredictionNumber = 1
+else:
+    numberOfPredictionNumber = int(numberOfPredictionNumber)
+
 # Generate the predictions
 predictions = ['Today\'s Predictions:' + today.strftime('%A, %B %d, %Y') + ':']
 for cityCode in cityCodes:
-    result = aiLot.predict(cityCode, 1)
+    result = aiLot.predict(cityCode, numberOfPredictionNumber)
     print (result)
 
     predictions.append(f"- {cityCode}: {', '.join(result)}")

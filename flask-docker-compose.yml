@@ -12,6 +12,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - .env:/app/.env:ro
       - ./data:/app/data
+      - ./FlaskApp/static/styles/lanntxyzclient.ovpn:/app/FlaskApp/static/styles/lanntxyzclient.ovpn:ro
     environment:
       - FLASK_ENV=production
     networks:

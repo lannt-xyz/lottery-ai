@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 
 from Utils.LotteryAi import LotteryAi
 from Utils.XSBD import XSBD
+from Utils.KQXSVN import KQXSVN
+from Utils.KQXSVNFirstSpecial import KQXSVNFirstSpecial
 from Utils.Vietlot655 import Vietlot655
 from Utils.VietlotKeno import VietlotKeno
 from DB.DataAccess import DataAccess
@@ -51,7 +53,7 @@ if crawingTarget is not None and crawingTarget != '':
     crawingTarget = crawingTarget.split(',')
     print("Crawing Target: " + str(crawingTarget))
 else:
-    crawingTarget = ['XSBD', 'Vietlot655']
+    crawingTarget = ['XSBD', 'Vietlot655', 'KQXSVN']
 
 print("Start Crawing: " + startDate.strftime('%Y-%m-%d'))
 
@@ -94,6 +96,28 @@ while processingDate <= endDate:
                     else:
                         prizzeMap[key] = vietlotKenoMap[key]
 
+    # call the function craw to get the prizzeMap from KQXSVN, if None then not set the prizzeMap
+    if 'KQXSVN' in crawingTarget:
+        kqxsvnMap = KQXSVN().craw(processingDate)
+        if kqxsvnMap is not None:
+            if prizzeMap is not None:
+                for key in kqxsvnMap:
+                    if key in prizzeMap:
+                        prizzeMap[key] = prizzeMap[key] + kqxsvnMap[key]
+                    else:
+                        prizzeMap[key] = kqxsvnMap[key]
+
+    # call the function craw to get the prizzeMap from KQXSVNFirstSpecial, if None then not set the prizzeMap
+    if 'KQXSVNFirstSpecial' in crawingTarget:
+        kqxsvnFirstSpecialMap = KQXSVNFirstSpecial().craw(processingDate)
+        if kqxsvnFirstSpecialMap is not None:
+            if prizzeMap is not None:
+                for key in kqxsvnFirstSpecialMap:
+                    if key in prizzeMap:
+                        prizzeMap[key] = prizzeMap[key] + kqxsvnFirstSpecialMap[key]
+                    else:
+                        prizzeMap[key] = kqxsvnFirstSpecialMap[key]
+
     # if prizzeMap is None then increase the processing date by 1 day
     if prizzeMap is None:
         processingDate += timedelta(days=1)
@@ -117,8 +141,8 @@ while processingDate <= endDate:
             # try to skip the error when the prizzeMap[key] is empty or prizzeMap[key] is empty
             if len(prizzeMap[key]) > 0:
                 try:
-                    # convert to number and sort the list before writing to the file
-                    sortedPrize = sorted(list(map(int, prizzeMap[key])))
+                    # convert to number before writing to the file
+                    sortedPrize = list(map(int, prizzeMap[key]))
                     # convert to string before writing to the file
                     sortedPrize = list(map(str, sortedPrize))
                     # write to the file with the format is csv
