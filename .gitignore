@@ -8,4 +8,5 @@ __pycache__/
 crawing-data_keno/
 models_keno/
 models_special/
+models_1st_spec/
 DNSUpdater/log.txt
