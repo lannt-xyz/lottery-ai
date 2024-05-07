@@ -9,9 +9,12 @@ from Utils.KQXSVNFirstSpecial import KQXSVNFirstSpecial
 from Utils.Vietlot655 import Vietlot655
 from Utils.VietlotKeno import VietlotKeno
 from DB.DataAccess import DataAccess
+from Logging.Config import configure_logger
 
 # load .env variables
 load_dotenv()
+
+logger = configure_logger(__name__)
 
 # create the output directory if not exist
 dir_name = os.getenv('STORE_DIR')
@@ -42,20 +45,20 @@ endDate = datetime.now()
 envStartDate = os.getenv('CRAWING_START_DATE')
 envEndDate = os.getenv('CRAWING_END_DATE')
 if envStartDate is not None and envStartDate != '':
-    print('Crawing from: ', envStartDate)
+    logger.info('Crawing from: %s', envStartDate)
     startDate = datetime.strptime(envStartDate, '%Y-%m-%d')
 if envEndDate is not None and envEndDate != '':
-    print('Crawing to: ', envEndDate)
+    logger.info('Crawing to: %s', envEndDate)
     endDate = datetime.strptime(envEndDate, '%Y-%m-%d')
 
-crawingTarget = os.getenv('CRAWING_TARGET')
-if crawingTarget is not None and crawingTarget != '':
-    crawingTarget = crawingTarget.split(',')
-    print("Crawing Target: " + str(crawingTarget))
+crawingTargetNames = os.getenv('CRAWING_TARGET')
+if crawingTargetNames is not None and crawingTargetNames != '':
+    crawingTargetNames = crawingTargetNames.split(',')
 else:
-    crawingTarget = ['XSBD', 'Vietlot655', 'KQXSVN']
+    crawingTargetNames = ['XSBD', 'Vietlot655', 'KQXSVN']
 
-print("Start Crawing: " + startDate.strftime('%Y-%m-%d'))
+logger.info("Crawing Target: " + str(crawingTargetNames))
+logger.info("Start Crawing: " + startDate.strftime('%Y-%m-%d'))
 
 # define the processing date is the startDate
 processingDate = startDate
@@ -63,65 +66,27 @@ processingDate = startDate
 # must re-train the model
 mustRetrain = []
 
-# loop until the processing date is less than or equal to the endDate
-while processingDate <= endDate:
+def merge_prize(exitingPrizeMap, newPrizeMap):
+    if newPrizeMap is not None:
+        if exitingPrizeMap is not None:
+            for key in newPrizeMap:
+                if key in exitingPrizeMap:
+                    exitingPrizeMap[key] = exitingPrizeMap[key] + newPrizeMap[key]
+                else:
+                    exitingPrizeMap[key] = newPrizeMap[key]
+
+def craw(targetDate: datetime):
     # define the prizzeMap is empty
     prizzeMap = {}
 
-    # call the function craw to get the prizzeMap from XSBD
-    if 'XSBD' in crawingTarget:
-        xsbdMap = XSBD().craw(processingDate)
-        if xsbdMap is not None:
-            prizzeMap = xsbdMap
-
-    # call the function craw to get the prizzeMap from Vietlot, if None then not set the prizzeMap
-    if 'Vietlot655' in crawingTarget:
-        vietlot655Map = Vietlot655().craw(processingDate)
-        if vietlot655Map is not None:
-            if prizzeMap is not None:
-                for key in vietlot655Map:
-                    if key in prizzeMap:
-                        prizzeMap[key] = prizzeMap[key] + vietlot655Map[key]
-                    else:
-                        prizzeMap[key] = vietlot655Map[key]
-
-    # call the function craw to get the prizzeMap from Vietlot, if None then not set the prizzeMap
-    if 'VietlotKeno' in crawingTarget:
-        vietlotKenoMap = VietlotKeno().craw(processingDate)
-        if vietlotKenoMap is not None:
-            if prizzeMap is not None:
-                for key in vietlotKenoMap:
-                    if key in prizzeMap:
-                        prizzeMap[key] = prizzeMap[key] + vietlotKenoMap[key]
-                    else:
-                        prizzeMap[key] = vietlotKenoMap[key]
-
-    # call the function craw to get the prizzeMap from KQXSVN, if None then not set the prizzeMap
-    if 'KQXSVN' in crawingTarget:
-        kqxsvnMap = KQXSVN().craw(processingDate)
-        if kqxsvnMap is not None:
-            if prizzeMap is not None:
-                for key in kqxsvnMap:
-                    if key in prizzeMap:
-                        prizzeMap[key] = prizzeMap[key] + kqxsvnMap[key]
-                    else:
-                        prizzeMap[key] = kqxsvnMap[key]
-
-    # call the function craw to get the prizzeMap from KQXSVNFirstSpecial, if None then not set the prizzeMap
-    if 'KQXSVNFirstSpecial' in crawingTarget:
-        kqxsvnFirstSpecialMap = KQXSVNFirstSpecial().craw(processingDate)
-        if kqxsvnFirstSpecialMap is not None:
-            if prizzeMap is not None:
-                for key in kqxsvnFirstSpecialMap:
-                    if key in prizzeMap:
-                        prizzeMap[key] = prizzeMap[key] + kqxsvnFirstSpecialMap[key]
-                    else:
-                        prizzeMap[key] = kqxsvnFirstSpecialMap[key]
+    for crawingTargetName in crawingTargetNames:
+        crawingTarget = globals()[crawingTargetName]()
+        crawingTargetMap = crawingTarget.craw(targetDate)
+        merge_prize(prizzeMap, crawingTargetMap)
 
     # if prizzeMap is None then increase the processing date by 1 day
     if prizzeMap is None:
-        processingDate += timedelta(days=1)
-        continue
+        return
 
     # get all the keys of the prizzeMap, then sort the keys
     keys = sorted(prizzeMap.keys())
@@ -130,6 +95,7 @@ while processingDate <= endDate:
     for key in keys:
         # key may contains the __1, __2, __3, ... so we need to get the text before for the cityCode
         cityCode = key.split('__')[0]
+        print(cityCode)
 
         # create the file if not exist
         filePath = f'{dir_name}/{cityCode}.csv'
@@ -147,39 +113,50 @@ while processingDate <= endDate:
                     sortedPrize = list(map(str, sortedPrize))
                     # write to the file with the format is csv
                     f.write(','.join(sortedPrize) + '\n')
-                except:
-                    print('Error: ', prizzeMap[key])
+                except Exception as e:
+                    logger.error('Error: ', prizzeMap[key])
+                    logger.exception('Exception occurred: %s', e)
                     continue
 
         # add the cityCode to the mustRetrain list
         mustRetrain.append(cityCode)
 
-    processingDateStr = processingDate.strftime('%Y-%m-%d')
+    targetDateStr = targetDate.strftime('%Y-%m-%d')
 
     # if envStartDate is not None or envStartDate is not empty then
     if envStartDate is not None and envStartDate != '':
         # store the processing date to the file for the next run as a checkpoint
         with open(checkpointFile, 'w') as f:
-            f.write(processingDateStr)
+            f.write(targetDateStr)
 
     # store the prizeMap to a file named `actual.csv` to sqlite db by DataAccess
     dataAccess = DataAccess()
     for key in prizzeMap:
         # convert prizzeMap[key] to string array before insert to the database
-        dataAccess.insertActual(processingDateStr, key, '_'.join(list(map(str, prizzeMap[key]))))
+        dataAccess.insertActual(targetDateStr, key, '_'.join(list(map(str, prizzeMap[key]))))
 
-    # increase the processing date by 1 day
-    processingDate += timedelta(days=1)
+# loop until the processing date is less than or equal to the endDate
+while processingDate <= endDate:
+    try:
+        logger.info('Crawing: ' + processingDate.strftime('%Y-%m-%d'))
+        craw(processingDate)
+    except Exception as e:
+        logger.exception("Exception occurred: %s", e)
+    finally:
+        # increase the processing date by 1 day
+        processingDate += timedelta(days=1)
 
-print('End crawling: ' + endDate.strftime('%Y-%m-%d'))
+
+logger.info('End crawing: ' + endDate.strftime('%Y-%m-%d'))
 
 # distinct the mustRetrain
 mustRetrain = list(set(mustRetrain))
 
-print('Must retrain: ', mustRetrain)
-print('Start retrain model...')
+logger.info('Must retrain: %s', mustRetrain)
+logger.info('Start retrain model...')
 # Training the model
 for file in mustRetrain:
+    logger.info('Training model for: %s', file)
     ai = LotteryAi()
     ai.train(file)
-print('Finish retrain model...')
+logger.info('Finish retrain model...')

@@ -15,5 +15,6 @@ COPY ../__init__.py .
 COPY ../Craw/*.py ./Craw/
 COPY ../Utils/*.py ./Utils/
 COPY ../DB/*.py ./DB/
+COPY ../Logging/*.py ./Logging/
 
 CMD [ "python", "-m", "Craw.Craw" ]
