@@ -32,7 +32,9 @@ class LotteryAi:
     # Function to load data from a file and preprocess it
     def load_data(self, model_name):
         # Load data from file, ignoring white spaces and accepting unlimited length numbers
-        data = np.genfromtxt(self.data_dir + '/' + model_name + '.csv', delimiter=',', dtype=int)
+        filePath = f'{self.data_dir}/{model_name}.csv'
+        print('filePath: ', filePath)
+        data = np.genfromtxt(filePath, delimiter=',', dtype=int)
         # Replace all -1 values with 0
         data[data == -1] = 0
         # Split data into training and validation sets

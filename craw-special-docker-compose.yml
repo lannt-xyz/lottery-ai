@@ -10,6 +10,7 @@ services:
       - ./models_1st_spec:/app/models
       - ./crawing-data:/app/crawing-data
       - ./data:/app/data
+      - ./logs:/app/logs
     environment:
       - CRAWING_TARGET=KQXSVNFirstSpecial
       - STORE_DIR=./crawing-data/xosobinhduong_1st_spec

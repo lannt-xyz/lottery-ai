@@ -6,11 +6,10 @@ services:
       dockerfile: Tele/TeleDockerfile
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - .env:/app/.env:ro
+      - .envcp:/app/.env:ro
       - ./models_1st_spec:/app/models_1st_spec
       - ./crawing-data:/app/crawing-data
       - ./data:/app/data
-      - ./Tele/TeleMessage.py:/app/Tele/TeleMessage.py:ro
     environment:
       - STORE_DIR=./crawing-data/xosobinhduong_1st_spec
       - MODEL_DIR=./models_1st_spec
@@ -21,4 +20,3 @@ services:
 networks:
   tele_1st_spec:
     driver: bridge
-

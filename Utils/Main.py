@@ -1,11 +1,10 @@
-from LotteryAi import LotteryAi
-from collections import Counter
+from datetime import datetime, timedelta
+from Utils.LotteryAi import LotteryAi
 
 def main():
-    model_name = 'vung-tau'
-    ai = LotteryAi()
-    res = ai.predict(model_name, 1)
-    print(res)
+    lot = LotteryAi()
+    res = lot.predict("ca-mau")
+    print('res: ', res) 
 
 if __name__ == "__main__":
     main()

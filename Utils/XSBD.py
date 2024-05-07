@@ -1,5 +1,8 @@
 import requests
 from datetime import datetime, timedelta
+from Logging.Config import configure_logger
+
+logger = configure_logger(__name__)
 
 # define constant for the URL
 URL = 'https://www.xosobinhduong.com.vn/get-lottery-mn?mask=getResultLoteryMn&skip=true&flagNumber=-1&lotdate='
@@ -12,13 +15,13 @@ class XSBD:
     def craw(self, processingDate: datetime):
         # request URL will be the URL with the processing date in the format yyyy-MM-dd
         requestUrl = URL + processingDate.strftime('%Y-%m-%d')
-        print('Crawing date: ' + processingDate.strftime('%Y-%m-%d'))
+
         # Make a request to the URL with the payload in the POST method
         r = requests.post(requestUrl)
 
         # the response is the text in json format, so we need to convert it to object
         if r.status_code != 200:
-            print('Error: ', r.status_code)
+            logger.info('Error: %s', r.status_code)
             processingDate += timedelta(days=1)
             return None
 
@@ -28,7 +31,7 @@ class XSBD:
         # check the status of the response
         status = jsonStr['status']
         if status != 1:
-            print('Error: ', jsonStr['message'])
+            logger.info('Error: %s', jsonStr['message'])
             processingDate += timedelta(days=1)
             return None
 

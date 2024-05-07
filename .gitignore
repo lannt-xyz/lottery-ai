@@ -1,12 +1,9 @@
-.env
+__pycache__/
+.env*
 .gitconfig
 .venv/
 data/
-crawing-data/
-models/
-__pycache__/
-crawing-data_keno/
-models_keno/
-models_special/
-models_1st_spec/
+crawing-data*/
+models*/
 DNSUpdater/log.txt
+logs/

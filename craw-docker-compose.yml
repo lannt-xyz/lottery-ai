@@ -10,11 +10,13 @@ services:
       - ./models:/app/models
       - ./crawing-data:/app/crawing-data
       - ./data:/app/data
+      - ./logs:/app/logs
     networks:
       - craw
     environment:
-      - CRAWING_TARGET=XSBD,Vietlot655
+      - CRAWING_TARGET=KQXSVN,KQXSVNFirstSpecial
       - CRAWING_START_DATE=2019-06-03
+      #- CRAWING_END_DATE=2019-07-03
 
 networks:
   craw:

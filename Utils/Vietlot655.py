@@ -2,6 +2,10 @@ import requests
 from datetime import datetime, timedelta
 import json
 from bs4 import BeautifulSoup
+from Logging.Config import configure_logger
+
+logger = configure_logger(__name__)
+
 
 # define constant for the URL
 URL = 'https://vietlott.vn/ajaxpro/Vietlott.PlugIn.WebParts.Game655CompareWebPart,Vietlott.PlugIn.WebParts.ashx'
@@ -146,7 +150,7 @@ class Vietlot655:
 
         # the response is the text in json format, so we need to convert it to object
         if r.status_code != 200:
-            print('Error: ', r.status_code)
+            logger.info('Error: %s', r.status_code)
             return None
 
         # convert the response to object
@@ -172,7 +176,6 @@ class Vietlot655:
         if len(rows) == 0:
             return None
 
-        # on each row, find all cell and print the text of each cell
         numbers = []
         for row in rows:
             cells = row.find_all('td')

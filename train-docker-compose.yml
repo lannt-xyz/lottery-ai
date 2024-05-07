@@ -10,3 +10,10 @@ services:
       - ./crawing-data:/app/crawing-data
     environment:
       - CHANELS=ben-tre
+    networks:
+      - train
+
+networks:
+  train:
+    driver: bridge
+
