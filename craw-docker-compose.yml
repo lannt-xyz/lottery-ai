@@ -15,7 +15,7 @@ services:
       - craw
     environment:
       - CRAWING_TARGET=KQXSVN,KQXSVNFirstSpecial
-      - CRAWING_START_DATE=2019-06-03
+      # - CRAWING_START_DATE=2017-08-01
       #- CRAWING_END_DATE=2019-07-03
 
 networks:

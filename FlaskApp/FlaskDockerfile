@@ -24,8 +24,5 @@ RUN pip install gunicorn
 # Expose the port on which the Flask app will run
 EXPOSE 5000
 
-# Set the environment variable for Flask
-ENV FLASK_APP=app.py
-
 # With the target is the FlaskApp/FlaskApp.py, run the Flask application with Gunicorn in production mode
 CMD ["gunicorn", "-b", "0.0.0.0:5000", "FlaskApp.FlaskApp:app"]

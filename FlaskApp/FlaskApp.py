@@ -72,13 +72,11 @@ def results():
 
     return render_template('results.html', data=data)
 
-@app.route('/dashboard-data', methods=['GET'])
-def dashboardData():
-    dataAccess = DataAccess()
-    data=dataAccess.getAllResults().to_dict(orient='records')
+def processDashboardData(data):
     dashboardData = {}
     # get data from environment variable named LOT_MAP
     lotMap = json.loads(os.getenv('LOT_MAP'))
+
     # generate 7 colors for the chart coressponding with the data on the lotMap
     colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#00FFFF', '#FF00FF', '#C0C0C0']
 
@@ -99,8 +97,10 @@ def dashboardData():
         # format the number in 2 digits
         predictions = [x.zfill(2) for x in predictions]
 
-        # find the key of lotMap that contain cityCode
-        lotMapKey = [key for key, value in lotMap.items() if cityCode in value]
+        # find the key of lotMap that contain cityCode, the cityCode may has prefix fstSpec_ but value of map is not
+        # so check it also by removing the prefix fstSpec_ from the cityCode then check it also
+        lotMapKey = [key for key, value in lotMap.items() if cityCode in value or cityCode.replace('fstSpec_', '') in value]
+
         if len(lotMapKey) == 0:
             continue
         # get the color for the cityCode
@@ -133,6 +133,20 @@ def dashboardData():
         dashboardData[i]['label'] = dayOfWeekName[int(dashboardData[i]['order'])] + ' - ' + dashboardData[i]['label']
 
     return jsonify(dashboardData)
+
+@app.route('/dashboard-cover', methods=['GET'])
+def dashboardCover():
+    dataAccess = DataAccess()
+    data=dataAccess.getCoverResults().to_dict(orient='records')
+
+    return processDashboardData(data)
+
+@app.route('/dashboard-fst-spec', methods=['GET'])
+def dashboardFstSpec():
+    dataAccess = DataAccess()
+    data=dataAccess.getFstSpecResults().to_dict(orient='records')
+
+    return processDashboardData(data)
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():

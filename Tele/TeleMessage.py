@@ -25,19 +25,25 @@ dayOfWeek = today.weekday()
 
 # Get the city codes of the current day
 cityCodes = lotMap[str(dayOfWeek)]
+# for each item on the cityCodes, if does not `vietlot-655` then keeping current and add a new item with prefix is `fstSpec` to the list
+cityCodes = [cityCode for cityCode in cityCodes if cityCode != 'vietlot-655'] + [f'fstSpec_{cityCode}' for cityCode in cityCodes]
+print('cityCodes:', cityCodes)
+
+def getPredictionNumberBasedOnCityCode(cityCode):
+    if cityCode == 'vietlot-655':
+        return 7
+    elif 'fstSpec' in cityCode:
+        return 2
+    else:
+        return 1
 
 # Initialize the LotteryAi
 aiLot = LotteryAi()
 
-numberOfPredictionNumber = json.loads(os.getenv('PREDICTION_NUMBER'))
-if numberOfPredictionNumber is None:
-    numberOfPredictionNumber = 1
-else:
-    numberOfPredictionNumber = int(numberOfPredictionNumber)
-
 # Generate the predictions
 predictions = ['Today\'s Predictions:' + today.strftime('%A, %B %d, %Y') + ':']
 for cityCode in cityCodes:
+    numberOfPredictionNumber = getPredictionNumberBasedOnCityCode(cityCode)
     result = aiLot.predict(cityCode, numberOfPredictionNumber)
     print (result)
 

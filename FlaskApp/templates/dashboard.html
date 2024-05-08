@@ -1,42 +1,53 @@
 {% extends "base.html" %}
 
 {% block content %}
-<canvas id="myChart"></canvas>
+<div class="chart-container">
+    <canvas id="coverChart" class="chart"></canvas>
+    <canvas id="fstSpecChart" class="chart"></canvas>
+</div>
 <script>
-    fetch('/dashboard-data')
+    function chartProcessing(chartName, data) {
+        var canvas = document.getElementById(chartName);
+        canvas.style.height = '20vh';
+
+        var ctx = canvas.getContext('2d');
+        var coverChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map(item => item.label),
+                datasets: [{
+                    label: '# of Matched Numbers',
+                    data: data.map(item => item.count),
+                    backgroundColor: data.map(item => {
+                        let color = item.color;
+                        color = color.replace('#', '');
+                        let r = parseInt(color.substring(0, 2), 16);
+                        let g = parseInt(color.substring(2, 4), 16);
+                        let b = parseInt(color.substring(4, 6), 16);
+                        return 'rgba(' + r + ',' + g + ',' + b + ',0.2)';
+                    }),
+                    borderColor: data.map(item => item.color),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                legend: {
+                    display: false
+                }
+            }
+        });
+    }
+
+    fetch('/dashboard-cover')
         .then(response => response.json())
         .then(data => {
-            var canvas = document.getElementById('myChart');
-            canvas.style.height = '50vh';
+            chartProcessing('coverChart', data);
+        });
 
-            var ctx = canvas.getContext('2d');
-            var myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.map(item => item.label),
-                    datasets: [{
-                        label: '# of Matched Numbers',
-                        data: data.map(item => item.count),
-                        backgroundColor: data.map(item => {
-                            let color = item.color;
-                            color = color.replace('#', '');
-                            let r = parseInt(color.substring(0, 2), 16);
-                            let g = parseInt(color.substring(2, 4), 16);
-                            let b = parseInt(color.substring(4, 6), 16);
-                            return 'rgba(' + r + ',' + g + ',' + b + ',0.2)';
-                        }),
-                        borderColor: data.map(item => item.color),
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
+    fetch('/dashboard-fst-spec')
+        .then(response => response.json())
+        .then(data => {
+            chartProcessing('fstSpecChart', data);
         });
 </script>
 {% endblock %}

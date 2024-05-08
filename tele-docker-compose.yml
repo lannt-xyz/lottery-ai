@@ -10,11 +10,6 @@ services:
       - ./models:/app/models
       - ./crawing-data:/app/crawing-data
       - ./data:/app/data
-      - ./Utils/LotteryAi.py:/app/Utils/LotteryAi.py:ro
-    environment:
-      - STORE_DIR=/app/crawing-data/xosobinhduong
-      - MODEL_DIR=/app/models
-      - PREDICTION_NUMBER=1
     networks:
       - tele
 

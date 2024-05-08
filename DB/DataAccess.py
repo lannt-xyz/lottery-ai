@@ -79,13 +79,28 @@ class DataAccess:
 
         return data
 
-    def getAllResults(self):
+    def getCoverResults(self):
         query = '''
             SELECT p.date, p.cityCode, p.prediction, IFNULL(a.actual, '') as actual
             FROM predictions p
             LEFT JOIN actuals a
             ON p.date = a.date AND p.cityCode = a.cityCode
             WHERE p.prediction IS NOT NULL
+            AND p.cityCode not like 'fstSpec_%'
+        '''
+        data = pd.read_sql_query(query, self.conn)
+        self.conn.close
+
+        return data
+
+    def getFstSpecResults(self):
+        query = '''
+            SELECT p.date, p.cityCode, p.prediction, IFNULL(a.actual, '') as actual
+            FROM predictions p
+            LEFT JOIN actuals a
+            ON p.date = a.date AND p.cityCode = a.cityCode
+            WHERE p.prediction IS NOT NULL
+            AND p.cityCode like 'fstSpec_%'
         '''
         data = pd.read_sql_query(query, self.conn)
         self.conn.close
