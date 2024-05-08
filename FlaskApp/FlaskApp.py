@@ -13,6 +13,13 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 
 lotMap = json.loads(os.getenv('LOT_MAP'))
 
+# declare final variable as the amount of money to buy a ticket
+coverPayment = 160000
+firstSpecPayment = 20000
+
+# declare wining amount for each prize
+winingAmount = 750000
+
 @app.route('/with-date', methods=['POST'])
 def handle_date():
     date_str = request.form.get('date')
@@ -72,7 +79,7 @@ def results():
 
     return render_template('results.html', data=data)
 
-def processDashboardData(data):
+def processBarDashboardData(data):
     dashboardData = {}
     # get data from environment variable named LOT_MAP
     lotMap = json.loads(os.getenv('LOT_MAP'))
@@ -134,19 +141,99 @@ def processDashboardData(data):
 
     return jsonify(dashboardData)
 
+def processPieChartData(data, payment):
+    dashboardData = {}
+    # get data from environment variable named LOT_MAP
+    lotMap = json.loads(os.getenv('LOT_MAP'))
+
+    # loop through the data, with each city_code, get the prediction and actual
+    for row in data:
+        cityCode = row['cityCode']
+        # return soon if cityCode is vietlot-655
+        if cityCode == 'vietlot-655':
+            continue
+
+        prediction = row['prediction']
+        actual = row['actual']
+        actuals = actual.split('_')
+
+        predictions = prediction.split('_')
+        # predictions's item is in format ##(%##), extract the number only
+        predictions = [x.split('(')[0] for x in predictions]
+        # format the number in 2 digits
+        predictions = [x.zfill(2) for x in predictions]
+
+        # find the key of lotMap that contain cityCode, the cityCode may has prefix fstSpec_ but value of map is not
+        # so check it also by removing the prefix fstSpec_ from the cityCode then check it also
+        lotMapKey = [key for key, value in lotMap.items() if cityCode in value or cityCode.replace('fstSpec_', '') in value]
+
+        if len(lotMapKey) == 0:
+            continue
+
+        # sum of the winning amount based on the prediction and the actual
+        pay = 0
+        winning = 0
+        for p in predictions:
+            # count p in actual
+            winning += (actuals.count(p) * winingAmount)
+            pay += payment
+
+        # if dashboarData contain key cityCode, add the count to the existing count, and set the color for the cityCode
+        if cityCode in dashboardData:
+            dashboardData[cityCode]['winning'] += winning
+            dashboardData[cityCode]['pay'] += pay
+        else:
+            dashboardData[cityCode] = {
+                'winning': winning,
+                'pay': pay
+            }
+
+    totalWining = 0
+    totalPay = 0
+    for key, value in dashboardData.items():
+        totalWining += value['winning']
+        totalPay += value['pay']
+
+    data = [{
+            'label': 'Total Pay',
+            'value': totalPay,
+            'color': '#FF0000'
+        },
+        {
+            'label': 'Total Winning',
+            'value': totalWining,
+            'color': '#00FF00'
+        }]
+
+    return jsonify(data)
+
 @app.route('/dashboard-cover', methods=['GET'])
 def dashboardCover():
     dataAccess = DataAccess()
     data=dataAccess.getCoverResults().to_dict(orient='records')
 
-    return processDashboardData(data)
+    return processBarDashboardData(data)
 
 @app.route('/dashboard-fst-spec', methods=['GET'])
 def dashboardFstSpec():
     dataAccess = DataAccess()
     data=dataAccess.getFstSpecResults().to_dict(orient='records')
 
-    return processDashboardData(data)
+    return processBarDashboardData(data)
+
+@app.route('/dashboard-cover-profit', methods=['GET'])
+def dashboardCoverProfit():
+    dataAccess = DataAccess()
+    data = dataAccess.getCoverResults().to_dict(orient='records')
+
+    return processPieChartData(data, coverPayment)
+
+@app.route('/dashboard-fst-spec-profit', methods=['GET'])
+def dashboardFstSpecProfit():
+    dataAccess = DataAccess()
+    data = dataAccess.getFstSpecResults().to_dict(orient='records')
+
+    return processPieChartData(data, firstSpecPayment)
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
