@@ -87,6 +87,7 @@ class DataAccess:
             ON p.date = a.date AND p.cityCode = a.cityCode
             WHERE p.prediction IS NOT NULL
             AND p.cityCode not like 'fstSpec_%'
+            AND p.cityCode <> 'vietlot-655'
         '''
         data = pd.read_sql_query(query, self.conn)
         self.conn.close

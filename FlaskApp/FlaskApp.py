@@ -141,7 +141,7 @@ def processBarDashboardData(data):
 
     return jsonify(dashboardData)
 
-def processPieChartData(data, payment):
+def processPieChartData(data, payment, countMatched):
     dashboardData = {}
     # get data from environment variable named LOT_MAP
     lotMap = json.loads(os.getenv('LOT_MAP'))
@@ -173,9 +173,9 @@ def processPieChartData(data, payment):
         # sum of the winning amount based on the prediction and the actual
         pay = 0
         winning = 0
-        for p in predictions:
-            # count p in actual
-            winning += (actuals.count(p) * winingAmount)
+        index = 0
+        for prediction in predictions:
+            winning += countMatched(index, prediction, actuals) * winingAmount
             pay += payment
 
         # if dashboarData contain key cityCode, add the count to the existing count, and set the color for the cityCode
@@ -226,14 +226,14 @@ def dashboardCoverProfit():
     dataAccess = DataAccess()
     data = dataAccess.getCoverResults().to_dict(orient='records')
 
-    return processPieChartData(data, coverPayment)
+    return processPieChartData(data, coverPayment, lambda i, p, a: a.count(p))
 
 @app.route('/dashboard-fst-spec-profit', methods=['GET'])
 def dashboardFstSpecProfit():
     dataAccess = DataAccess()
     data = dataAccess.getFstSpecResults().to_dict(orient='records')
 
-    return processPieChartData(data, firstSpecPayment)
+    return processPieChartData(data, firstSpecPayment, lambda i, p, a: a.count(p))
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
