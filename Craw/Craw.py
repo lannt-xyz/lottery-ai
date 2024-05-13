@@ -123,8 +123,8 @@ def craw(targetDate: datetime):
 
     targetDateStr = targetDate.strftime('%Y-%m-%d')
 
-    # if envStartDate is not None or envStartDate is not empty then
-    if envStartDate is not None and envStartDate != '':
+    # if envStartDate is None or envStartDate is empty then
+    if envStartDate is None or envStartDate != '':
         # store the processing date to the file for the next run as a checkpoint
         with open(checkpointFile, 'w') as f:
             f.write(targetDateStr)
