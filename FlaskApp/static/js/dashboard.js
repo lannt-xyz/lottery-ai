@@ -1,3 +1,6 @@
+// Register the plugin to all charts:
+Chart.register(ChartDataLabels);
+
 let chartList = [];
 let lineData = [];
 
@@ -64,8 +67,7 @@ function generateCharts(startDate, endDate) {
         });
 }
 
-function convertToTransparentColor(item) {
-    let color = item.color;
+function convertToTransparentColor(color) {
     color = color.replace('#', '');
     let r = parseInt(color.substring(0, 2), 16);
     let g = parseInt(color.substring(2, 4), 16);
@@ -93,26 +95,22 @@ function createBarChart(chartName, data) {
             datasets: [{
                 label: '# of Matched Numbers',
                 data: data.map(item => item.count),
-                backgroundColor: data.map(item => convertToTransparentColor(item)),
+                backgroundColor: data.map(item => convertToTransparentColor(item.color)),
                 borderColor: data.map(item => item.color),
                 borderWidth: 1
             }, {
                 type: 'line',
                 label: 'Prediction accuracy',
                 data: lines,
-                fill: false,
-                borderColor: '#0000ff',
-                backgroundColor: '#0000ff',
-                pointBackgroundColor: '#0000ff',
-                pointBorderColor: '#0000ff',
-                pointHoverBackgroundColor: '#0000ff',
-                pointHoverBorderColor: '#0000ff',
+                borderColor: '#34b7eb',
+                backgroundColor: '#34b7eb',
                 datalabels: {
-                    display: true,
-                    color: 'black'
+                    align: 'end',
+                    anchor: 'end',
                 }
             }]
         },
+        plugins: [ChartDataLabels],
         options: {
             hover: { mode: null },
             responsive: true,
@@ -120,9 +118,44 @@ function createBarChart(chartName, data) {
             legend: { display: false },
             plugins: {
                 datalabels: {
-                    formatter: (value, ctx) => {
-                        return value.toFixed(2);  // format the value here
-                    }
+                    backgroundColor: function (context) {
+                        return context.dataset.backgroundColor;
+                    },
+                    borderRadius: 4,
+                    color: 'white',
+                    font: {
+                        weight: 'bold',
+                        size: 9
+                    },
+                    formatter: function (value, context) {
+                        if (context.dataset.type === 'line') {
+                            return (value * 100 / maxValue).toFixed(0) + '%';
+                        } else {
+                            return null;
+                        }
+                    },
+                    padding: 6
+                }
+            },
+            // Core options
+            aspectRatio: 5 / 3,
+            layout: {
+                padding: {
+                    top: 32,
+                    right: 16,
+                    bottom: 16,
+                    left: 8
+                }
+            },
+            elements: {
+                line: {
+                    fill: false,
+                    tension: 0.4
+                }
+            },
+            scales: {
+                y: {
+                    stacked: true
                 }
             }
         }
@@ -138,7 +171,7 @@ function createPieChart(chartId, data) {
             labels: data.map(item => item.label),
             datasets: [{
                 data: data.map(item => item.value),
-                backgroundColor: data.map(item => convertToTransparentColor(item)),
+                backgroundColor: data.map(item => convertToTransparentColor(item.color)),
                 borderColor: data.map(item => item.color),
                 borderWidth: 1
             }]
@@ -156,6 +189,23 @@ function createPieChart(chartId, data) {
             },
             responsive: true,
             maintainAspectRatio: false,
+            plugins: {
+                datalabels: {
+                    backgroundColor: function (context) {
+                        return context.dataset.backgroundColor;
+                    },
+                    borderRadius: 4,
+                    color: 'black',
+                    font: {
+                        weight: 'bold',
+                        size: 9
+                    },
+                    formatter: function (value, context) {
+                        return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                    },
+                    padding: 6
+                }
+            }
         }
     });
     chartList.push(chart);
