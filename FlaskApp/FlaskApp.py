@@ -20,43 +20,40 @@ firstSpecPayment = 20000
 # declare wining amount for each prize
 winingAmount = 750000
 
-@app.route('/with-date', methods=['POST'])
-def handle_date():
-    date_str = request.form.get('date')
-    return get_prediction(date_str)
+# declare the function of count matched number for the Cover
+def countCoverMatched(i, p, a):
+    # if a is an array with one empty element, return 0
+    if len(a) == 1 and a[0] == '':
+        return 0
+
+    # convert array a in String to array of number
+    actuals = [int(x) for x in a]
+    prediction = int(p)
+
+    return actuals.count(prediction)
+
+coverMatchedFunction = countCoverMatched
+
+# declare the function of count matched number for the First-Spec
+def countFirstSpecMatched(i, p, a):
+    # if a is an array with one empty element, return 0
+    if len(a) == 1 and a[0] == '':
+        return 0
+
+    # convert array a in String to array of number
+    actuals = [int(x) for x in a]
+    prediction = int(p)
+
+    if prediction == actuals[i]:
+        return 1
+
+    return 0
+
+firstSpecMatchedFunction = countFirstSpecMatched
 
 @app.route('/')
 def home():
-    # get the current date's day of week
-    today = datetime.now().strftime('%Y-%m-%d')
-    return get_prediction(today)
-
-def get_prediction(targetDateStr):
-
-    targetDate = datetime.strptime(targetDateStr, '%Y-%m-%d')
-    # get the day of week of the target date
-    dayOfWeek = targetDate.weekday()
-    # get the city codes of the current day
-    cityCodes = lotMap[str(dayOfWeek)]
-
-    # get the dayOfWeek name
-    dayOfWeekName = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][dayOfWeek]
-
-    
-    predictions = []
-    dataAccess = DataAccess()
-    for cityCode in cityCodes:
-        result = dataAccess.getPredictions(targetDateStr, cityCode)
-        # do not contain any prediction then continue
-        if len(result) == 0:
-            continue
-
-        predictions.append({
-            'cityCode': cityCode,
-            'result': ', '.join(result['prediction'])
-        })
-
-    return render_template('home.html', today=targetDate.strftime('%Y-%m-%d'), dayOfWeekName=dayOfWeekName, predictions=predictions)
+    return render_template('dashboard.html')
 
 @app.route('/results', methods=['GET'])
 def results():
@@ -66,20 +63,26 @@ def results():
     for item in data:
         prediction_numbers = item.get('prediction', '').split('_')
         actual_numbers = item.get('actual', '').split('_')
+        countMatched = coverMatchedFunction
+        if 'fstSpec' in item.get('cityCode'):
+            countMatched = firstSpecMatchedFunction
         matched = ''
+        index = 0
         for number in prediction_numbers:
-            predictionNumber = number.split('(')[0]
-            prediction = "{:02}".format(int(predictionNumber))
-            matched_count = len(actual_numbers) - len([x for x in actual_numbers if x != prediction])
+            predictionNumber = int(number.split('(')[0])
+            prediction = "{:02}".format(predictionNumber)
+            matched_count = countMatched(index, predictionNumber, actual_numbers)
             if matched_count > 0:
                 matched += ' ' + prediction + '(' + str(matched_count) + ')'
+            index += 1
+
         item['matched'] = matched
         item['prediction'] = item.get('prediction', '').replace('_', ', ')
         item['actual'] = item.get('actual', '').replace('_', ', ')
 
     return render_template('results.html', data=data)
 
-def processBarDashboardData(data):
+def processBarDashboardData(data, countMatched):
     dashboardData = {}
     # get data from environment variable named LOT_MAP
     lotMap = json.loads(os.getenv('LOT_MAP'))
@@ -115,9 +118,11 @@ def processBarDashboardData(data):
 
         # count the number of time the prediction appears in the actual
         count = 0
-        for p in predictions:
+        index = 0
+        for prediction in predictions:
             # count p in actual
-            count += actuals.count(p)
+            count += countMatched(index, prediction, actuals)
+            index += 1
 
         # if dashboarData contain key cityCode, add the count to the existing count, and set the color for the cityCode
         if cityCode in dashboardData:
@@ -178,6 +183,7 @@ def processPieChartData(data, payment, countMatched):
         for prediction in predictions:
             winning += countMatched(index, prediction, actuals) * winingAmount
             pay += payment
+            index += 1
 
         # if dashboarData contain key cityCode, add the count to the existing count, and set the color for the cityCode
         if cityCode in dashboardData:
@@ -215,7 +221,7 @@ def dashboardCover():
     dataAccess = DataAccess()
     data=dataAccess.getCoverResults(startDate, endDate).to_dict(orient='records')
 
-    return processBarDashboardData(data)
+    return processBarDashboardData(data, coverMatchedFunction)
 
 @app.route('/dashboard-fst-spec', methods=['GET'])
 def dashboardFstSpec():
@@ -224,7 +230,7 @@ def dashboardFstSpec():
     dataAccess = DataAccess()
     data=dataAccess.getFstSpecResults(startDate, endDate).to_dict(orient='records')
 
-    return processBarDashboardData(data)
+    return processBarDashboardData(data, firstSpecMatchedFunction)
 
 @app.route('/dashboard-cover-profit', methods=['GET'])
 def dashboardCoverProfit():
@@ -233,7 +239,7 @@ def dashboardCoverProfit():
     dataAccess = DataAccess()
     data = dataAccess.getCoverResults(startDate, endDate).to_dict(orient='records')
 
-    return processPieChartData(data, coverPayment, lambda i, p, a: a.count(p))
+    return processPieChartData(data, coverPayment, coverMatchedFunction)
 
 @app.route('/dashboard-fst-spec-profit', methods=['GET'])
 def dashboardFstSpecProfit():
@@ -242,7 +248,7 @@ def dashboardFstSpecProfit():
     dataAccess = DataAccess()
     data = dataAccess.getFstSpecResults(startDate, endDate).to_dict(orient='records')
 
-    return processPieChartData(data, firstSpecPayment, lambda i, p, a: a.count(p))
+    return processPieChartData(data, firstSpecPayment, firstSpecMatchedFunction)
 
 @app.route('/dashboard-accuracy', methods=['GET'])
 def dashboardAccuracy():
