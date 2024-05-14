@@ -2,13 +2,17 @@
 
 {% block content %}
 <script src="{{ url_for('static', filename='js/dashboard.js') }}" type="text/javascript"></script>
+<div>
+    <label for="month-picker">Select a month:</label>
+    <input type="month" id="month-picker" name="month-picker">
+</div>
 <div class="outer-wrapper">
     <h3 class="chart-title">Cover result</h3>
     <div class="row">
         <div class="col-md-8 chart-wrapper">
             <canvas id="coverChart"></canvas>
         </div>
-        <div class="col-md-4 pie-chart-wrapper">
+        <div class="col-md-3 pie-chart-wrapper">
             <canvas id="coverChartProfit"></canvas>
         </div>
     </div>
@@ -20,7 +24,7 @@
         <div class="col-md-8 chart-wrapper">
             <canvas id="fstSpecChart"></canvas>
         </div>
-        <div class="col-md-4 pie-chart-wrapper">
+        <div class="col-md-3 pie-chart-wrapper">
             <canvas id="fstSpecChartProfit"></canvas>
         </div>
     </div>

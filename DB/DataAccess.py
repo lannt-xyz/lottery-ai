@@ -79,7 +79,7 @@ class DataAccess:
 
         return data
 
-    def getCoverResults(self):
+    def getCoverResults(self, startDate, endDate):
         query = '''
             SELECT p.date, p.cityCode, p.prediction, IFNULL(a.actual, '') as actual
             FROM predictions p
@@ -88,13 +88,15 @@ class DataAccess:
             WHERE p.prediction IS NOT NULL
             AND p.cityCode not like 'fstSpec_%'
             AND p.cityCode <> 'vietlot-655'
+            AND p.date >= ?
+            AND p.date <= ?
         '''
-        data = pd.read_sql_query(query, self.conn)
+        data = pd.read_sql_query(query, self.conn, params=(startDate, endDate))
         self.conn.close
 
         return data
 
-    def getFstSpecResults(self):
+    def getFstSpecResults(self, startDate, endDate):
         query = '''
             SELECT p.date, p.cityCode, p.prediction, IFNULL(a.actual, '') as actual
             FROM predictions p
@@ -102,8 +104,10 @@ class DataAccess:
             ON p.date = a.date AND p.cityCode = a.cityCode
             WHERE p.prediction IS NOT NULL
             AND p.cityCode like 'fstSpec_%'
+            AND p.date >= ?
+            AND p.date <= ?
         '''
-        data = pd.read_sql_query(query, self.conn)
+        data = pd.read_sql_query(query, self.conn, params=(startDate, endDate))
         self.conn.close
 
         return data

@@ -210,29 +210,37 @@ def processPieChartData(data, payment, countMatched):
 
 @app.route('/dashboard-cover', methods=['GET'])
 def dashboardCover():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
     dataAccess = DataAccess()
-    data=dataAccess.getCoverResults().to_dict(orient='records')
+    data=dataAccess.getCoverResults(startDate, endDate).to_dict(orient='records')
 
     return processBarDashboardData(data)
 
 @app.route('/dashboard-fst-spec', methods=['GET'])
 def dashboardFstSpec():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
     dataAccess = DataAccess()
-    data=dataAccess.getFstSpecResults().to_dict(orient='records')
+    data=dataAccess.getFstSpecResults(startDate, endDate).to_dict(orient='records')
 
     return processBarDashboardData(data)
 
 @app.route('/dashboard-cover-profit', methods=['GET'])
 def dashboardCoverProfit():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
     dataAccess = DataAccess()
-    data = dataAccess.getCoverResults().to_dict(orient='records')
+    data = dataAccess.getCoverResults(startDate, endDate).to_dict(orient='records')
 
     return processPieChartData(data, coverPayment, lambda i, p, a: a.count(p))
 
 @app.route('/dashboard-fst-spec-profit', methods=['GET'])
 def dashboardFstSpecProfit():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
     dataAccess = DataAccess()
-    data = dataAccess.getFstSpecResults().to_dict(orient='records')
+    data = dataAccess.getFstSpecResults(startDate, endDate).to_dict(orient='records')
 
     return processPieChartData(data, firstSpecPayment, lambda i, p, a: a.count(p))
 

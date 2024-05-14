@@ -9,6 +9,7 @@ body {
     background-color: #ffffff;
     text-align: left;
     padding: 1vh;
+    overflow-x: hidden;
 }
 
 h1 {
