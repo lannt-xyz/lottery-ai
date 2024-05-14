@@ -1,115 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}" type="text/javascript"></script>
 <div class="outer-wrapper">
-    <h3>Cover result</h3>
+    <h3 class="chart-title">Cover result</h3>
     <div class="row">
-        <div class="col-sm chart-wrapper">
+        <div class="col-md-8 chart-wrapper">
             <canvas id="coverChart"></canvas>
         </div>
-        <div class="col-sm chart-wrapper">
+        <div class="col-md-4 pie-chart-wrapper">
             <canvas id="coverChartProfit"></canvas>
         </div>
     </div>
 </div>
 <div class="separator"></div>
 <div class="outer-wrapper">
-    <h3>First-special result</h3>
+    <h3 class="chart-title">First-special result</h3>
     <div class="row">
-        <div class="col-sm chart-wrapper">
+        <div class="col-md-8 chart-wrapper">
             <canvas id="fstSpecChart"></canvas>
         </div>
-        <div class="col-sm chart-wrapper">
+        <div class="col-md-4 pie-chart-wrapper">
             <canvas id="fstSpecChartProfit"></canvas>
         </div>
     </div>
 </div>
-<script>
-    function convertToTransparentColor(item) {
-        let color = item.color;
-        color = color.replace('#', '');
-        let r = parseInt(color.substring(0, 2), 16);
-        let g = parseInt(color.substring(2, 4), 16);
-        let b = parseInt(color.substring(4, 6), 16);
-        return 'rgba(' + r + ',' + g + ',' + b + ',0.2)';
-    }
-
-    function createBarChart(chartName, data) {
-        var canvas = document.getElementById(chartName);
-        var ctx = canvas.getContext('2d');
-        var coverChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: data.map(item => item.label),
-                datasets: [{
-                    label: '# of Matched Numbers',
-                    data: data.map(item => item.count),
-                    backgroundColor: data.map(item => convertToTransparentColor(item)),
-                    borderColor: data.map(item => item.color),
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                hover: {mode: null},
-                responsive: true,
-                maintainAspectRatio: false,
-                legend: {display: false}
-            }
-        });
-    }
-
-    function createPieChart(chartId, data) {
-        var ctx = document.getElementById(chartId).getContext('2d');
-        var myPieChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: data.map(item => item.label),
-                datasets: [{
-                    data: data.map(item => item.value),
-                    backgroundColor: data.map(item => convertToTransparentColor(item)),
-                    borderColor: data.map(item => item.color),
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                tooltips: {
-                    callbacks: {
-                        label: function(tooltipItem, data) {
-                            var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-                            var res = value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-                            console.log(res)
-                            return res;
-                        }
-                    }
-                },
-                responsive: true,
-                maintainAspectRatio: false,
-            }
-        });
-    }
-
-    fetch('/dashboard-cover')
-        .then(response => response.json())
-        .then(data => {
-            createBarChart('coverChart', data);
-        });
-
-    fetch('/dashboard-fst-spec')
-        .then(response => response.json())
-        .then(data => {
-            createBarChart('fstSpecChart', data);
-        });
-
-    fetch('/dashboard-cover-profit')
-        .then(response => response.json())
-        .then(data => {
-            createPieChart('coverChartProfit', data);
-        });
-
-    fetch('/dashboard-fst-spec-profit')
-        .then(response => response.json())
-        .then(data => {
-            createPieChart('fstSpecChartProfit', data);
-        });
-</script>
 {% endblock %}

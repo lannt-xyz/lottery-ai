@@ -137,7 +137,8 @@ def processBarDashboardData(data):
     dayOfWeekName = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
     # add the name of day of week to the label of data by String concatenation
     for i in range(len(dashboardData)):
-        dashboardData[i]['label'] = dayOfWeekName[int(dashboardData[i]['order'])] + ' - ' + dashboardData[i]['label']
+        label = dayOfWeekName[int(dashboardData[i]['order'])] + ' - ' + dashboardData[i]['label']
+        dashboardData[i]['label'] = label.replace('fstSpec_', '')
 
     return jsonify(dashboardData)
 
@@ -234,6 +235,44 @@ def dashboardFstSpecProfit():
     data = dataAccess.getFstSpecResults().to_dict(orient='records')
 
     return processPieChartData(data, firstSpecPayment, lambda i, p, a: a.count(p))
+
+@app.route('/dashboard-accuracy', methods=['GET'])
+def dashboardAccuracy():
+    # get model directory path from environment variable
+    modelDir = os.getenv('MODEL_DIR')
+    filePrefix = '_val_accuracy.txt'
+    # get all files in the model folder has patterns of '*_accuracy.txt'
+    files = [f for f in os.listdir(modelDir) if f.endswith(filePrefix)]
+    # by using the order of data, I want to convert it to name of day of week
+    dayOfWeekName = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
+    # get data from environment variable named LOT_MAP
+    lotMap = json.loads(os.getenv('LOT_MAP'))
+
+    # create a map of data to return with key is the name of the file and value is the content of the file
+    data = []
+    for file in files:
+        with open(f'{modelDir}/{file}', 'r') as f:
+            # the file name is the key of the map, with removing _accuracy.txt
+            cityCode = file.replace(filePrefix, '')
+            seachingCityCode = cityCode.replace('fstSpec_', '')
+            # based on the value of lotMap, get the order of the key
+            order = [key for key, value in lotMap.items() if seachingCityCode in value]
+            if order == None or len(order) == 0:
+                continue
+
+            # get the dayOfWeek name by using the order
+            dayOfWeek = dayOfWeekName[int(order[0])]
+            # data is content of the file in float value need to multiply with 100 to get the percentage
+            value = float(f.read()) * 100
+            # rounding to get value in integer
+            value = round(value, 0)
+            data.append({
+                'label': f'{dayOfWeek} - {cityCode}',
+                'value': value
+            })
+
+    return jsonify(data)
+
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():

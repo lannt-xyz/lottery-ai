@@ -43,18 +43,14 @@ th {
     background-color: #ffffff !important;
 }
 
-.outer-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
 .chart-wrapper {
-    height: 280px;
-    padding-left: 2rem;
-    padding-right: 2rem;
+    height: 480px;
 }
 
-.separator {
-    height: 2rem;
+.pie-chart-wrapper {
+    height: 280px;
+}
+
+.chart-title {
+    margin-top: 2rem;
 }
