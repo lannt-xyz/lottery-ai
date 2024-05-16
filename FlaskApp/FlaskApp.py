@@ -57,8 +57,15 @@ def home():
 
 @app.route('/results', methods=['GET'])
 def results():
+    return render_template('results.html')
+
+@app.route('/results-data', methods=['GET'])
+def resultsData():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
+
     dataAccess = DataAccess()
-    data = dataAccess.getResults().to_dict(orient='records')
+    data = dataAccess.getResults(startDate, endDate).to_dict(orient='records')
 
     for item in data:
         prediction_numbers = item.get('prediction', '').split('_')
@@ -80,7 +87,11 @@ def results():
         item['prediction'] = item.get('prediction', '').replace('_', ', ')
         item['actual'] = item.get('actual', '').replace('_', ', ')
 
-    return render_template('results.html', data=data)
+    resultsData = {
+        'data': data
+    }
+
+    return jsonify(resultsData)
 
 def processBarDashboardData(data, countMatched):
     dashboardData = {}

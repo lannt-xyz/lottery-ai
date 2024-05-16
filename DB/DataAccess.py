@@ -64,17 +64,18 @@ class DataAccess:
         self.conn.close
         return data
 
-    def getResults(self):
+    def getResults(self, startDate, endDate):
         query = '''
             SELECT p.date, p.cityCode, p.prediction, IFNULL(a.actual, '') as actual
             FROM predictions p
             LEFT JOIN actuals a
             ON p.date = a.date AND p.cityCode = a.cityCode
             WHERE p.prediction IS NOT NULL
+            AND p.date >= ?
+            AND p.date <= ?
             ORDER BY p.date DESC
-            LIMIT 100
         '''
-        data = pd.read_sql_query(query, self.conn)
+        data = pd.read_sql_query(query, self.conn, params=(startDate, endDate))
         self.conn.close
 
         return data

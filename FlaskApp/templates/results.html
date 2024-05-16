@@ -1,53 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
-<script type="text/javascript">
-    $(document).ready(function () {
-        var table = new DataTable('#result', {
-            paging: false,
-            scrollCollapse: true,
-            scrollY: '70vh',
-            order: [[0, 'desc']]
-        });
-
-        var lastValue = null;
-        var colorClass = 'group1';
-
-        table.rows().every(function () {
-            var data = this.data();
-            var value = data[0]; // get the value of the first column
-
-            if (value !== lastValue) {
-                // switch color class every time the value changes
-                colorClass = (colorClass === 'group1') ? 'group2' : 'group1';
-                lastValue = value;
-            }
-
-            $(this.node()).addClass(colorClass);
-        });
-    });
-</script>
-
-<table id="result">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>City Code</th>
-            <th>Prediction</th>
-            <th>Actual</th>
-            <th>Matched</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in data %}
-        <tr>
-            <td>{{ item.date }}</td>
-            <td>{{ item.cityCode }}</td>
-            <td>{{ item.prediction }}</td>
-            <td>{{ item.actual }}</td>
-            <td>{{ item.matched }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<script src="{{ url_for('static', filename='js/results.js') }}" type="text/javascript"></script>
+<div>
+    <label for="month-picker">Select a month:</label>
+    <input type="month" id="month-picker" name="month-picker">
+</div>
+<div>
+    <table id="result">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>City Code</th>
+                <th>Prediction</th>
+                <th>Actual</th>
+                <th>Matched</th>
+            </tr>
+        </thead>
+    </table>
+</div>
 {% endblock %}
