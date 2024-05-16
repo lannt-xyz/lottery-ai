@@ -2,9 +2,15 @@
 
 {% block content %}
 <script src="{{ url_for('static', filename='js/results.js') }}" type="text/javascript"></script>
-<div>
-    <label for="month-picker">Select a month:</label>
-    <input type="month" id="month-picker" name="month-picker">
+<div class="row">
+    <div class="col-sm">
+        <label for="month-picker">Select a month:</label>
+        <input type="month" id="month-picker" name="month-picker">
+    </div>
+    <div class="col-sm">
+        <label for="include-first-spec">Include First-special:</label>
+        <input type="checkbox" id="include-first-spec" name="include-first-spec" checked="checked">
+    </div>
 </div>
 <div>
     <table id="result">

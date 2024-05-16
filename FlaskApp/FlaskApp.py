@@ -63,9 +63,11 @@ def results():
 def resultsData():
     startDate = request.args.get('startDate')
     endDate = request.args.get('endDate')
+    includeFirstSpec = request.args.get('includeFirstSpec')
+    includeFirstSpec = True if includeFirstSpec.lower() == 'true' else False
 
     dataAccess = DataAccess()
-    data = dataAccess.getResults(startDate, endDate).to_dict(orient='records')
+    data = dataAccess.getResults(startDate, endDate, includeFirstSpec).to_dict(orient='records')
 
     for item in data:
         prediction_numbers = item.get('prediction', '').split('_')

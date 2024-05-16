@@ -1,12 +1,10 @@
 $(document).ready(function () {
     $('#month-picker').change(function () {
-        let selectedMonth = $(this).val();
-        let startDate = new Date(selectedMonth + '-01');
-        let endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 12);
-        startDate = startDate.toISOString().split('T')[0];
-        endDate = endDate.toISOString().split('T')[0];
+        generateTable();
+    });
 
-        generateTable(startDate, endDate);
+    $('#include-first-spec').change(function () {
+        generateTable();
     });
 
     let date = new Date();
@@ -16,9 +14,16 @@ $(document).ready(function () {
     $('#month-picker').val(year + '-' + month).trigger('change');
 });
 
-function generateTable(startDate, endDate) {
+function generateTable() {
+    let selectedMonth = $('#month-picker').val();
+    let startDate = new Date(selectedMonth + '-01');
+    let endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 12);
+    startDate = startDate.toISOString().split('T')[0];
+    endDate = endDate.toISOString().split('T')[0];
+
+    let includeFirstSpec = $('#include-first-spec').is(':checked');
     // adding the startDate and endDate to the URL as query parameters
-    let url = '/results-data?startDate=' + startDate + '&endDate=' + endDate;
+    let url = '/results-data?startDate=' + startDate + '&endDate=' + endDate + '&includeFirstSpec=' + includeFirstSpec;
     // URL encoded the query parameters
     url = encodeURI(url);
 
@@ -37,6 +42,7 @@ function generateTable(startDate, endDate) {
             { data: 'matched' }
         ],
         paging: false,
+        searching: false,
         scrollCollapse: true,
         scrollY: '70vh',
         order: [[0, 'desc']],

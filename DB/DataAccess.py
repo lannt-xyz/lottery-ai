@@ -64,7 +64,7 @@ class DataAccess:
         self.conn.close
         return data
 
-    def getResults(self, startDate, endDate):
+    def getResults(self, startDate, endDate, includeFirstSpec):
         query = '''
             SELECT p.date, p.cityCode, p.prediction, IFNULL(a.actual, '') as actual
             FROM predictions p
@@ -73,6 +73,12 @@ class DataAccess:
             WHERE p.prediction IS NOT NULL
             AND p.date >= ?
             AND p.date <= ?
+        '''
+        if not includeFirstSpec:
+            query += '''
+                AND p.cityCode not like 'fstSpec_%'
+            '''
+        query += '''
             ORDER BY p.date DESC
         '''
         data = pd.read_sql_query(query, self.conn, params=(startDate, endDate))
