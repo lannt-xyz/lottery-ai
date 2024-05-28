@@ -16,7 +16,8 @@ $(document).ready(function () {
 
 function generateTable() {
     let selectedMonth = $('#month-picker').val();
-    let startDate = new Date(selectedMonth + '-01');
+    let monthStartDate = getMonthStartDate();
+    let startDate = new Date(selectedMonth + '-' + monthStartDate);
     let endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 12);
     startDate = startDate.toISOString().split('T')[0];
     endDate = endDate.toISOString().split('T')[0];
