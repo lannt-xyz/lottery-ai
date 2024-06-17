@@ -1,0 +1,19 @@
+version: '3'
+services:
+  train-special:
+    image: lotteryai_common
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./.envcp:/app/.env:ro
+      - ./models_special:/app/models
+      - ./crawing-data:/app/crawing-data
+    networks:
+      - train-special
+    # environment:
+    #   - TRAINING_DATE=2024-06-14
+    command: python -m Train.TrainSpecial
+
+networks:
+  train-special:
+    driver: bridge
+

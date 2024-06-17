@@ -15,7 +15,7 @@ lotMap = json.loads(os.getenv('LOT_MAP'))
 
 # declare final variable as the amount of money to buy a ticket
 coverPayment = 160000
-firstSpecPayment = 20000
+firstSpecPayment = 10000
 
 # declare wining amount for each prize
 winingAmount = 750000
@@ -49,7 +49,40 @@ def countFirstSpecMatched(i, p, a):
 
     return 0
 
+
+# declare the function of count matched number for the First-Spec
+def countFirstMatched(i, p, a):
+    # if a is an array with one empty element, return 0
+    if len(a) == 1 and a[0] == '':
+        return 0
+
+    # convert array a in String to array of number
+    actuals = [int(x) for x in a]
+    prediction = int(p)
+
+    if prediction == actuals[16]:
+        return 1
+
+    return 0
+
+# declare the function of count matched number for the First-Spec
+def countFirstMatched(i, p, a):
+    # if a is an array with one empty element, return 0
+    if len(a) == 1 and a[0] == '':
+        return 0
+
+    # convert array a in String to array of number
+    actuals = [int(x) for x in a]
+    prediction = int(p)
+
+    if prediction == actuals[17]:
+        return 1
+
+    return 0
+
 firstSpecMatchedFunction = countFirstSpecMatched
+firstMatchedFunction = countFirstSpecMatched
+specialMatchedFunction = countFirstSpecMatched
 
 @app.route('/')
 def home():
@@ -75,6 +108,10 @@ def resultsData():
         countMatched = coverMatchedFunction
         if 'fstSpec' in item.get('cityCode'):
             countMatched = firstSpecMatchedFunction
+        if 'first' in item.get('cityCode'):
+            countMatched = firstMatchedFunction
+        if 'special' in item.get('cityCode'):
+            countMatched = specialMatchedFunction
         matched = ''
         index = 0
         for number in prediction_numbers:
@@ -245,6 +282,24 @@ def dashboardFstSpec():
 
     return processBarDashboardData(data, firstSpecMatchedFunction)
 
+@app.route('/dashboard-spec', methods=['GET'])
+def dashboardSpec():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
+    dataAccess = DataAccess()
+    data=dataAccess.getSpecResults(startDate, endDate).to_dict(orient='records')
+
+    return processBarDashboardData(data, specMatchedFunction)
+
+@app.route('/dashboard-fst', methods=['GET'])
+def dashboardFst():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
+    dataAccess = DataAccess()
+    data=dataAccess.getFstResults(startDate, endDate).to_dict(orient='records')
+
+    return processBarDashboardData(data, firstMatchedFunction)
+
 @app.route('/dashboard-cover-profit', methods=['GET'])
 def dashboardCoverProfit():
     startDate = request.args.get('startDate')
@@ -262,6 +317,24 @@ def dashboardFstSpecProfit():
     data = dataAccess.getFstSpecResults(startDate, endDate).to_dict(orient='records')
 
     return processPieChartData(data, firstSpecPayment, firstSpecMatchedFunction)
+
+@app.route('/dashboard-fst-profit', methods=['GET'])
+def dashboardFstProfit():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
+    dataAccess = DataAccess()
+    data = dataAccess.getFstResults(startDate, endDate).to_dict(orient='records')
+
+    return processPieChartData(data, firstSpecPayment, firstMatchedFunction)
+
+@app.route('/dashboard-spec-profit', methods=['GET'])
+def dashboardSpecProfit():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
+    dataAccess = DataAccess()
+    data = dataAccess.getSpecResults(startDate, endDate).to_dict(orient='records')
+
+    return processPieChartData(data, firstSpecPayment, specialMatchedFunction)
 
 @app.route('/dashboard-accuracy', methods=['GET'])
 def dashboardAccuracy():
@@ -300,10 +373,13 @@ def dashboardAccuracy():
 
     return jsonify(data)
 
-
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
     return render_template('dashboard.html')
+
+@app.route('/settings', methods=['GET'])
+def settings():
+    return render_template('settings.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5001)

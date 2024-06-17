@@ -1,22 +1,17 @@
 version: '3'
 services:
-  tele_1st_spec:
-    build:
-      context: .
-      dockerfile: Tele/TeleDockerfile
+  tele_special:
+    image: lotteryai_common
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - .envcp:/app/.env:ro
-      - ./models_1st_spec:/app/models_1st_spec
+      - ./models_special:/app/models
       - ./crawing-data:/app/crawing-data
       - ./data:/app/data
-    environment:
-      - STORE_DIR=./crawing-data/xosobinhduong_1st_spec
-      - MODEL_DIR=./models_1st_spec
-      - PREDICTION_NUMBER=2
     networks:
-      - tele_1st_spec
+      - tele_special
+    command: python -m Tele.TeleMessageSpecial
 
 networks:
-  tele_1st_spec:
+  tele_special:
     driver: bridge

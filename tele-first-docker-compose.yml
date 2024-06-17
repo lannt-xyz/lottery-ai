@@ -1,0 +1,17 @@
+version: '3'
+services:
+  tele_first:
+    image: lotteryai_common
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - .envcp:/app/.env:ro
+      - ./models_first:/app/models
+      - ./crawing-data:/app/crawing-data
+      - ./data:/app/data
+    networks:
+      - tele_first
+    command: python -m Tele.TeleMessageFirst
+
+networks:
+  tele_first:
+    driver: bridge

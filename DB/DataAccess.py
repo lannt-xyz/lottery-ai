@@ -69,7 +69,11 @@ class DataAccess:
             SELECT p.date, p.cityCode, p.prediction, IFNULL(a.actual, '') as actual
             FROM predictions p
             LEFT JOIN actuals a
-            ON p.date = a.date AND p.cityCode = a.cityCode
+            ON p.date = a.date
+            AND (
+                replace(p.cityCode, 'first_', '') = a.cityCode
+                OR replace(p.cityCode, 'special_', '') = a.cityCode
+            )
             WHERE p.prediction IS NOT NULL
             AND p.date >= ?
             AND p.date <= ?
@@ -111,6 +115,38 @@ class DataAccess:
             ON p.date = a.date AND p.cityCode = a.cityCode
             WHERE p.prediction IS NOT NULL
             AND p.cityCode like 'fstSpec_%'
+            AND p.date >= ?
+            AND p.date <= ?
+        '''
+        data = pd.read_sql_query(query, self.conn, params=(startDate, endDate))
+        self.conn.close
+
+        return data
+
+    def getFstResults(self, startDate, endDate):
+        query = '''
+            SELECT p.date, p.cityCode, p.prediction, IFNULL(a.actual, '') as actual
+            FROM predictions p
+            LEFT JOIN actuals a
+            ON p.date = a.date AND p.cityCode = a.cityCode
+            WHERE p.prediction IS NOT NULL
+            AND p.cityCode like 'first_%'
+            AND p.date >= ?
+            AND p.date <= ?
+        '''
+        data = pd.read_sql_query(query, self.conn, params=(startDate, endDate))
+        self.conn.close
+
+        return data
+
+    def getSpecResults(self, startDate, endDate):
+        query = '''
+            SELECT p.date, p.cityCode, p.prediction, IFNULL(a.actual, '') as actual
+            FROM predictions p
+            LEFT JOIN actuals a
+            ON p.date = a.date AND p.cityCode = a.cityCode
+            WHERE p.prediction IS NOT NULL
+            AND p.cityCode like 'special_%'
             AND p.date >= ?
             AND p.date <= ?
         '''

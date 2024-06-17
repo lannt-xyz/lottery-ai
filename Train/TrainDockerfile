@@ -11,7 +11,8 @@ COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the application code to the working directory
-COPY ../Train/*.py ./Train
-COPY ../Utils/*.py ./Utils
+COPY ../__init__.py .
+COPY ../Train/*.py ./Train/
+COPY ../Utils/*.py ./Utils/
 
 CMD [ "python", "-m", "Train:Train" ]

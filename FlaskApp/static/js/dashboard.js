@@ -55,6 +55,18 @@ function generateCharts(startDate, endDate) {
             createBarChart('fstSpecChart', data);
         });
 
+    fetch('/dashboard-fst' + queryParameters)
+        .then(response => response.json())
+        .then(data => {
+            createBarChart('fstChart', data);
+        });
+
+    fetch('/dashboard-spec' + queryParameters)
+        .then(response => response.json())
+        .then(data => {
+            createBarChart('specChart', data);
+        });
+
     fetch('/dashboard-cover-profit' + queryParameters)
         .then(response => response.json())
         .then(data => {
@@ -65,6 +77,18 @@ function generateCharts(startDate, endDate) {
         .then(response => response.json())
         .then(data => {
             createPieChart('fstSpecChartProfit', data);
+        });
+
+    fetch('/dashboard-spec-profit' + queryParameters)
+        .then(response => response.json())
+        .then(data => {
+            createPieChart('specChartProfit', data);
+        });
+
+    fetch('/dashboard-fst-profit' + queryParameters)
+        .then(response => response.json())
+        .then(data => {
+            createPieChart('fstChartProfit', data);
         });
 }
 

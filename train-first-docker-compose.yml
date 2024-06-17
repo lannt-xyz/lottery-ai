@@ -1,0 +1,19 @@
+version: '3'
+services:
+  train-first:
+    image: lotteryai_common
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./.envcp:/app/.env:ro
+      - ./models_first:/app/models
+      - ./crawing-data:/app/crawing-data
+    networks:
+      - train-first
+    # environment:
+    #   - TRAINING_DATE=2024-06-15
+    command: python -m Train.TrainFirst
+
+networks:
+  train-first:
+    driver: bridge
+

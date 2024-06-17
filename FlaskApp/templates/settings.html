@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script src="{{ url_for('static', filename='js/settings.js') }}" type="text/javascript"></script>
+
+<form>
+    <div class="form-group">
+        <label for="monthStartDate">Month Start Date</label>
+        <input type="text" class="form-control" id="monthStartDate" aria-describedby="monthStartDateHelp" data-key="monthStartDate"
+            placeholder="Enter value in number">
+        <small id="monthStartDateHelp" class="form-text text-muted">Setting for initial Month Start Date.</small>
+    </div>
+    <button type="button" class="btn btn-primary" id="btn-save">Save</button>
+</form>
+
+{% endblock %}
