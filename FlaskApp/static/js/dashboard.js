@@ -72,28 +72,36 @@ function generateCharts(startDate, endDate) {
                         borderColor: '#ff0000',
                         backgroundColor: 'rgba(255, 0, 0, 0.2)',
                         borderWidth: 1,
-                        fill: false
+                        fill: false,
+                        tension: 0.4,
+                        borderRadius: 20
                     }, {
                         label: 'Absent',
                         data: data.data.filter(x => x.type === 'absent').map(x => x.count),
                         borderColor: '#00ff00',
                         backgroundColor: 'rgba(0, 255, 0, 0.2)',
                         borderWidth: 1,
-                        fill: false
+                        fill: false,
+                        tension: 0.4,
+                        borderRadius: 20
                     }, {
                         label: 'Combine',
                         data: data.data.filter(x => x.type === 'combine').map(x => x.count),
                         borderColor: '#400C85',
                         backgroundColor: 'rgba(169, 210, 213, 0.2)',
                         borderWidth: 1,
-                        fill: false
+                        fill: false,
+                        tension: 0.4,
+                        borderRadius: 20
                     }, {
                         label: 'Common',
                         data: data.data.filter(x => x.type === 'common').map(x => x.count),
                         borderColor: '#0000ff',
                         backgroundColor: 'rgba(0, 0, 255, 0.2)',
                         borderWidth: 1,
-                        fill: false
+                        fill: false,
+                        tension: 0.4,
+                        borderRadius: 20
                     }]
                 },
                 options: {
