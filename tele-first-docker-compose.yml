@@ -11,6 +11,8 @@ services:
     networks:
       - tele_first
     command: python -m Tele.TeleMessageFirst
+    # environment:
+    #   - PREDICT_DATE=2024-06-20
 
 networks:
   tele_first:

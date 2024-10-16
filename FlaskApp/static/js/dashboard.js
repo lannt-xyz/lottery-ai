@@ -5,21 +5,18 @@ let chartList = [];
 let lineData = [];
 
 $(document).ready(function () {
-    if (lineData.length == 0) {
-        fetch('/dashboard-accuracy')
-            .then(response => response.json())
-            .then(data => {
-                lineData = data;
-                initializeScreen();
-            });
-    }
+    initializeScreen();
 });
 
 function initializeScreen() {
     $('#month-picker').change(function () {
         let selectedMonth = $(this).val();
         let monthStartDate = getMonthStartDate();
-        let startDate = new Date(selectedMonth + '-' + monthStartDate);
+        // Extract year and month from selectedMonth
+        let [year, month] = selectedMonth.split('-').map(Number);
+        // Convert monthStartDate from string to intege
+        let startDay = parseInt(monthStartDate, 10);
+        let startDate = new Date(year, month - 1, startDay, 12); // month is 0-indexed in Date
         let endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 12);
         startDate = startDate.toISOString().split('T')[0];
         endDate = endDate.toISOString().split('T')[0];
@@ -43,195 +40,88 @@ function generateCharts(startDate, endDate) {
     // URL encoded the query parameters
     queryParameters = encodeURI(queryParameters);
 
-    fetch('/dashboard-cover' + queryParameters)
+    fetch('/matched-results' + queryParameters)
         .then(response => response.json())
         .then(data => {
-            createBarChart('coverChart', data);
-        });
+            let canvas = document.getElementById('matchedPredictionChart');
+            let ctx = canvas.getContext('2d');
 
-    fetch('/dashboard-fst-spec' + queryParameters)
-        .then(response => response.json())
-        .then(data => {
-            createBarChart('fstSpecChart', data);
-        });
+            // Step 1: Extract dates
+            let dates = data.data.map(x => x.date);
 
-    fetch('/dashboard-fst' + queryParameters)
-        .then(response => response.json())
-        .then(data => {
-            createBarChart('fstChart', data);
-        });
+            // Step 2: Remove duplicates
+            let uniqueDates = dates.reduce((acc, current) => {
+            if (acc.indexOf(current) === -1) {
+                acc.push(current);
+            }
+            return acc;
+            }, []);
 
-    fetch('/dashboard-spec' + queryParameters)
-        .then(response => response.json())
-        .then(data => {
-            createBarChart('specChart', data);
-        });
+            // Step 3: Sort dates (optional)
+            // Assuming your dates are in a format that can be directly compared (e.g., 'YYYY-MM-DD'),
+            // otherwise, you might need to parse them into Date objects for comparison.
+            uniqueDates.sort((a, b) => new Date(a) - new Date(b));
 
-    fetch('/dashboard-cover-profit' + queryParameters)
-        .then(response => response.json())
-        .then(data => {
-            createPieChart('coverChartProfit', data);
-        });
-
-    fetch('/dashboard-fst-spec-profit' + queryParameters)
-        .then(response => response.json())
-        .then(data => {
-            createPieChart('fstSpecChartProfit', data);
-        });
-
-    fetch('/dashboard-spec-profit' + queryParameters)
-        .then(response => response.json())
-        .then(data => {
-            createPieChart('specChartProfit', data);
-        });
-
-    fetch('/dashboard-fst-profit' + queryParameters)
-        .then(response => response.json())
-        .then(data => {
-            createPieChart('fstChartProfit', data);
-        });
-}
-
-function convertToTransparentColor(color) {
-    color = color.replace('#', '');
-    let r = parseInt(color.substring(0, 2), 16);
-    let g = parseInt(color.substring(2, 4), 16);
-    let b = parseInt(color.substring(4, 6), 16);
-    return 'rgba(' + r + ',' + g + ',' + b + ',0.2)';
-}
-
-function createBarChart(chartName, data) {
-    let canvas = document.getElementById(chartName);
-    let ctx = canvas.getContext('2d');
-    let lines = [];
-    let maxValue = Math.max(...data.map(item => item.count));
-    data.forEach(e => {
-        let predication = x => e.label == x.label;
-        if ('fstSpecChart' == chartName) {
-            predication = x => x.label.includes('fstSpec_') && x.label.replace('fstSpec_', '') == e.label;
-        }
-        let line = lineData.filter(predication).map(x => x.value * maxValue / 100)[0];
-        lines.push(line);
-    });
-    let chart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: data.map(item => item.label),
-            datasets: [{
-                label: '# of Matched Numbers',
-                data: data.map(item => item.count),
-                backgroundColor: data.map(item => convertToTransparentColor(item.color)),
-                borderColor: data.map(item => item.color),
-                borderWidth: 1
-            }, {
+            let chart = new Chart(ctx, {
                 type: 'line',
-                label: 'Prediction accuracy',
-                data: lines,
-                borderColor: '#34b7eb',
-                backgroundColor: '#34b7eb',
-                datalabels: {
-                    align: 'end',
-                    anchor: 'end',
-                }
-            }]
-        },
-        plugins: [ChartDataLabels],
-        options: {
-            hover: { mode: null },
-            responsive: true,
-            maintainAspectRatio: false,
-            legend: { display: false },
-            plugins: {
-                datalabels: {
-                    backgroundColor: function (context) {
-                        return context.dataset.backgroundColor;
-                    },
-                    borderRadius: 4,
-                    color: 'white',
-                    font: {
-                        weight: 'bold',
-                        size: 9
-                    },
-                    formatter: function (value, context) {
-                        if (context.dataset.type === 'line') {
-                            return (value * 100 / maxValue).toFixed(0) + '%';
-                        } else {
-                            return null;
+                data: {
+                    labels: uniqueDates,
+                    datasets: [{
+                        label: 'Cycle',
+                        data: data.data.filter(x => x.type === 'cycle').map(x => x.count),
+                        borderColor: '#ff0000',
+                        backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                        borderWidth: 1,
+                        fill: false
+                    }, {
+                        label: 'Absent',
+                        data: data.data.filter(x => x.type === 'absent').map(x => x.count),
+                        borderColor: '#00ff00',
+                        backgroundColor: 'rgba(0, 255, 0, 0.2)',
+                        borderWidth: 1,
+                        fill: false
+                    }, {
+                        label: 'Combine',
+                        data: data.data.filter(x => x.type === 'combine').map(x => x.count),
+                        borderColor: '#400C85',
+                        backgroundColor: 'rgba(169, 210, 213, 0.2)',
+                        borderWidth: 1,
+                        fill: false
+                    }, {
+                        label: 'Common',
+                        data: data.data.filter(x => x.type === 'common').map(x => x.count),
+                        borderColor: '#0000ff',
+                        backgroundColor: 'rgba(0, 0, 255, 0.2)',
+                        borderWidth: 1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'category',
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Count'
+                            },
+                            ticks: {
+                                beginAtZero: true,
+                                stepSize: 1
+                            }
                         }
                     },
-                    padding: 6
+                    // Add responsive options here
+                    responsive: true,
+                    maintainAspectRatio: false
                 }
-            },
-            // Core options
-            aspectRatio: 5 / 3,
-            layout: {
-                padding: {
-                    top: 32,
-                    right: 16,
-                    bottom: 16,
-                    left: 8
-                }
-            },
-            elements: {
-                line: {
-                    fill: false,
-                    tension: 0.4
-                }
-            },
-            scales: {
-                y: {
-                    stacked: true
-                }
-            }
-        }
-    });
-    chartList.push(chart);
-}
-
-function createPieChart(chartId, data) {
-    let ctx = document.getElementById(chartId).getContext('2d');
-    let chart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: data.map(item => item.label),
-            datasets: [{
-                data: data.map(item => item.value),
-                backgroundColor: data.map(item => convertToTransparentColor(item.color)),
-                borderColor: data.map(item => item.color),
-                borderWidth: 1
-            }]
-        },
-        options: {
-            tooltips: {
-                callbacks: {
-                    label: function (tooltipItem, data) {
-                        let value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-                        let res = value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-                        console.log(res);
-                        return res;
-                    }
-                }
-            },
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                datalabels: {
-                    backgroundColor: function (context) {
-                        return context.dataset.backgroundColor;
-                    },
-                    borderRadius: 4,
-                    color: 'black',
-                    font: {
-                        weight: 'bold',
-                        size: 9
-                    },
-                    formatter: function (value, context) {
-                        return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-                    },
-                    padding: 6
-                }
-            }
-        }
-    });
-    chartList.push(chart);
+            });
+            chart.canvas.parentNode.style.width = '100%';
+            chartList.push(chart);
+        });
 }

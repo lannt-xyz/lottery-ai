@@ -1,9 +1,11 @@
 __pycache__/
 .env*
 .gitconfig
+.gittest
 .venv/
 data/
 crawing-data*/
 models*/
 DNSUpdater/log.txt
 logs/
+**venv**

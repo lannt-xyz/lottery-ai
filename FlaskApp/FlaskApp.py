@@ -1,6 +1,7 @@
 import json
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 from flask import Flask, render_template, request, jsonify
 from datetime import datetime
@@ -14,11 +15,13 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 lotMap = json.loads(os.getenv('LOT_MAP'))
 
 # declare final variable as the amount of money to buy a ticket
-coverPayment = 160000
+coverPayment = int(os.getenv('COVER_PAYMENT'))
+#coverPayment = 160000
 firstSpecPayment = 10000
 
 # declare wining amount for each prize
-winingAmount = 750000
+winingAmount = int(os.getenv('COVER_WINNING_AMOUNT'))
+#winingAmount = 750000
 
 # declare the function of count matched number for the Cover
 def countCoverMatched(i, p, a):
@@ -99,6 +102,9 @@ def resultsData():
     includeFirstSpec = request.args.get('includeFirstSpec')
     includeFirstSpec = True if includeFirstSpec.lower() == 'true' else False
 
+    return jsonify(resultsData(startDate, endDate, includeFirstSpec))
+
+def resultsData(startDate, endDate, includeFirstSpec):
     dataAccess = DataAccess()
     data = dataAccess.getResults(startDate, endDate, includeFirstSpec).to_dict(orient='records')
 
@@ -130,7 +136,7 @@ def resultsData():
         'data': data
     }
 
-    return jsonify(resultsData)
+    return resultsData
 
 def processBarDashboardData(data, countMatched):
     dashboardData = {}
@@ -139,7 +145,6 @@ def processBarDashboardData(data, countMatched):
 
     # generate 7 colors for the chart coressponding with the data on the lotMap
     colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#00FFFF', '#FF00FF', '#C0C0C0']
-
     # loop through the data, with each city_code, get the prediction and actual
     for row in data:
         cityCode = row['cityCode']
@@ -273,6 +278,45 @@ def dashboardCover():
 
     return processBarDashboardData(data, coverMatchedFunction)
 
+@app.route('/dashboard-cover-absent', methods=['GET'])
+def dashboardCoverAbsent():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
+    dataAccess = DataAccess()
+    data=dataAccess.getCoverResults(startDate, endDate).to_dict(orient='records')
+    # filter data to get the rows that cityCode contain 'absent_' and remove the prefix 'absent_'
+    data = [x for x in data if 'absent_' in x['cityCode']]
+    for x in data:
+        x['cityCode'] = x['cityCode'].replace('absent_', '')
+
+    return processBarDashboardData(data, coverMatchedFunction)
+
+@app.route('/dashboard-cover-cycle', methods=['GET'])
+def dashboardCoverCycle():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
+    dataAccess = DataAccess()
+    data=dataAccess.getCoverResults(startDate, endDate).to_dict(orient='records')
+    # filter data to get the rows that cityCode contain 'absent_' and remove the prefix 'absent_'
+    data = [x for x in data if 'cycle_' in x['cityCode']]
+    for x in data:
+        x['cityCode'] = x['cityCode'].replace('cycle_', '')
+
+    return processBarDashboardData(data, coverMatchedFunction)
+
+@app.route('/dashboard-cover-combine', methods=['GET'])
+def dashboardCoverCombine():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
+    dataAccess = DataAccess()
+    data=dataAccess.getCoverResults(startDate, endDate).to_dict(orient='records')
+    # filter data to get the rows that cityCode contain 'absent_' and remove the prefix 'absent_'
+    data = [x for x in data if 'combine_' in x['cityCode']]
+    for x in data:
+        x['cityCode'] = x['cityCode'].replace('combine_', '')
+
+    return processBarDashboardData(data, coverMatchedFunction)
+
 @app.route('/dashboard-fst-spec', methods=['GET'])
 def dashboardFstSpec():
     startDate = request.args.get('startDate')
@@ -306,6 +350,45 @@ def dashboardCoverProfit():
     endDate = request.args.get('endDate')
     dataAccess = DataAccess()
     data = dataAccess.getCoverResults(startDate, endDate).to_dict(orient='records')
+
+    return processPieChartData(data, coverPayment, coverMatchedFunction)
+
+@app.route('/dashboard-cover-profit-absent', methods=['GET'])
+def dashboardCoverProfitAbsent():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
+    dataAccess = DataAccess()
+    data = dataAccess.getCoverResults(startDate, endDate).to_dict(orient='records')
+    # filter data to get the rows that cityCode contain 'absent_' and remove the prefix 'absent_'
+    data = [x for x in data if 'absent_' in x['cityCode']]
+    for x in data:
+        x['cityCode'] = x['cityCode'].replace('absent_', '')
+
+    return processPieChartData(data, coverPayment, coverMatchedFunction)
+
+@app.route('/dashboard-cover-profit-cycle', methods=['GET'])
+def dashboardCoverProfitCycle():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
+    dataAccess = DataAccess()
+    data = dataAccess.getCoverResults(startDate, endDate).to_dict(orient='records')
+    # filter data to get the rows that cityCode contain 'absent_' and remove the prefix 'absent_'
+    data = [x for x in data if 'cycle_' in x['cityCode']]
+    for x in data:
+        x['cityCode'] = x['cityCode'].replace('cycle_', '')
+
+    return processPieChartData(data, coverPayment, coverMatchedFunction)
+
+@app.route('/dashboard-cover-profit-combine', methods=['GET'])
+def dashboardCoverProfitCombine():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
+    dataAccess = DataAccess()
+    data = dataAccess.getCoverResults(startDate, endDate).to_dict(orient='records')
+    # filter data to get the rows that cityCode contain 'absent_' and remove the prefix 'absent_'
+    data = [x for x in data if 'combine_' in x['cityCode']]
+    for x in data:
+        x['cityCode'] = x['cityCode'].replace('combine_', '')
 
     return processPieChartData(data, coverPayment, coverMatchedFunction)
 
@@ -373,9 +456,137 @@ def dashboardAccuracy():
 
     return jsonify(data)
 
+@app.route('/matched-results', methods=['GET'])
+def matched_results():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
+    return jsonify(find_matched(startDate, endDate))
+
+def find_matched(startDate, endDate):
+
+    # Call resultsData() to get the original data
+    original_data = resultsData(startDate, endDate, False)
+
+    # Convert startDate and endDate to datetime objects
+    startInDate = datetime.strptime(startDate, '%Y-%m-%d')
+    endInDate = datetime.strptime(endDate, '%Y-%m-%d')
+
+    # Generate a list of all dates between startDate and endDate
+    date_generated = [startInDate + timedelta(days=x) for x in range(0, (endInDate - startInDate).days + 1)]
+
+    # Initialize a dictionary to hold counts for each date
+    date_counts = {date.strftime("%Y-%m-%d"): 0 for date in date_generated}
+
+    # Initialize a dictionary to hold the processed results
+    processed_data = {
+        "data": []
+    }
+    
+    # Temporary storage to count items for each date and type
+    counts = {}
+    
+    # Process each item in the original data
+    for item in original_data['data']:
+        date = item['date']
+        cityCode = item['cityCode']
+        matched = item['matched']
+
+        # Initialize matched_num to 0 for each item
+        matched_num = 0
+        
+        # Split the matched string by space and process each part
+        for part in matched.split():
+            # Check if part contains a number wrapped in parentheses
+            if '(' in part and ')' in part:
+                # Extract the number inside the parentheses
+                num_str = part[part.find('(')+1:part.find(')')]
+                try:
+                    # Convert to integer and add to matched_num
+                    matched_num += int(num_str)
+                except ValueError:
+                    # In case the extraction or conversion fails, ignore this part
+                    pass
+        
+        # Determine the type based on the prefix of cityCode
+        if cityCode.startswith('cycle_'):
+            item_type = 'cycle'
+        elif cityCode.startswith('absent_'):
+            item_type = 'absent'
+        elif cityCode.startswith('combine_'):
+            item_type = 'combine'
+        else:
+            item_type = 'common'
+        
+        # Key to uniquely identify each date and type combination
+        key = (date, item_type)
+        
+        # Increment count if matched is not empty
+        if matched:
+            counts[key] = counts.get(key, 0) + matched_num
+
+    # After processing all items, ensure all dates and types are included
+    for date in date_generated:
+        for item_type in ['cycle', 'absent', 'combine', 'common']:  # Include all expected types
+            key = (date.strftime("%Y-%m-%d"), item_type)
+            # If a date and type combination was not encountered, set its count to 0
+            if key not in counts:
+                counts[key] = 0
+
+    # Convert the counts dictionary to the desired output format
+    for (date, item_type), count in counts.items():
+        processed_data['data'].append({
+            "date": date,
+            "type": item_type,
+            "count": count
+        })
+
+    # Sort the processed data by date
+    processed_data['data'] = sorted(processed_data['data'], key=lambda x: x['date'])
+
+    # Return the processed data
+    return processed_data
+
+@app.route('/daily-profit', methods=['GET'])
+def daily_profit():
+    startDate = request.args.get('startDate')
+    endDate = request.args.get('endDate')
+    matched_data = find_matched(startDate, endDate)
+    # loop through the matched_data, with each date, get the count
+    data = matched_data['data']
+    # get data from environment variable named LOT_MAP
+    lotMap = json.loads(os.getenv('LOT_MAP'))
+    
+    # group the data by date, type and count the number of items
+    daily_data = []
+    for item in data:
+        date_str = item['date']
+        item_type = item['type']
+        matched_count = item['count']
+        # convert to date object from string
+        date = datetime.strptime(date_str, '%Y-%m-%d')
+        # get the day of week index from the date, then convert to string
+        dayOfWeek = str(date.weekday())
+        # get the number of cityCodes based on the key
+        cityCodes = lotMap[dayOfWeek]
+        # get the size of the cityCodes
+        bought = len(cityCodes)
+
+        daily_data.append({
+            'date': date_str,
+            'type': item_type,
+            'profit': bought * coverPayment - matched_count * winingAmount
+        })
+    
+    return jsonify(daily_data)
+
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
     return render_template('dashboard.html')
+
+@app.route('/dashboard-weekly', methods=['GET'])
+def dashboard_weekly():
+    return render_template('dashboard-weekly.html')
+
 
 @app.route('/settings', methods=['GET'])
 def settings():

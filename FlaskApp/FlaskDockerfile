@@ -10,6 +10,9 @@ COPY ./requirements.txt .
 # Install the dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install Gunicorn
+RUN pip install gunicorn
+
 # Copy the application code to the working directory
 COPY ../__init__.py .
 COPY ../FlaskApp/*.py ./FlaskApp/
@@ -17,9 +20,6 @@ COPY ../FlaskApp/static ./FlaskApp/static
 COPY ../FlaskApp/templates ./FlaskApp/templates
 COPY ../Utils/*.py ./Utils/
 COPY ../DB/*.py ./DB/
-
-# Install Gunicorn
-RUN pip install gunicorn
 
 # Expose the port on which the Flask app will run
 EXPOSE 5000

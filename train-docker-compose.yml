@@ -1,9 +1,7 @@
 version: '3'
 services:
   train:
-    build:
-      context: .
-      dockerfile: TrainDockerfile
+    image: lotteryai_common
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./models:/app/models

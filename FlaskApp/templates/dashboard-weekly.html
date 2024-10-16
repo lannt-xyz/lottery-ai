@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script src="{{ url_for('static', filename='js/dashboard-weekly.js') }}" type="text/javascript"></script>
+<div>
+    <label for="month-picker">Select a month:</label>
+    <input type="month" id="month-picker" name="month-picker">
+</div>
+
+<div class="outer-wrapper">
+    <h3 class="chart-title">Cover result: Most Common</h3>
+    <div class="row">
+        <div class="col-md-9 chart-wrapper">
+            <canvas id="coverChart"></canvas>
+        </div>
+        <div class="col-md-3 pie-chart-wrapper">
+            <canvas id="coverChartProfit"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="outer-wrapper">
+    <h3 class="chart-title">Cover result: Longest Absent</h3>
+    <div class="row">
+        <div class="col-md-9 chart-wrapper">
+            <canvas id="coverChartAbsent"></canvas>
+        </div>
+        <div class="col-md-3 pie-chart-wrapper">
+            <canvas id="coverChartProfitAbsent"></canvas>
+        </div>
+    </div>
+</div>
+
+
+<div class="outer-wrapper">
+    <h3 class="chart-title">Cover result: Most Consistent Cycle</h3>
+    <div class="row">
+        <div class="col-md-9 chart-wrapper">
+            <canvas id="coverChartCycle"></canvas>
+        </div>
+        <div class="col-md-3 pie-chart-wrapper">
+            <canvas id="coverChartProfitCycle"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="outer-wrapper">
+    <h3 class="chart-title">Cover result: Combine Long Absent & Consistent Cycle</h3>
+    <div class="row">
+        <div class="col-md-9 chart-wrapper">
+            <canvas id="coverChartCombine"></canvas>
+        </div>
+        <div class="col-md-3 pie-chart-wrapper">
+            <canvas id="coverChartProfitCombine"></canvas>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

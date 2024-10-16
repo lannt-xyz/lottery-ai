@@ -6,51 +6,23 @@
     <label for="month-picker">Select a month:</label>
     <input type="month" id="month-picker" name="month-picker">
 </div>
+
 <div class="outer-wrapper">
-    <h3 class="chart-title">Cover result</h3>
+    <h3 class="chart-title">Matched Prediction Status</h3>
     <div class="row">
-        <div class="col-md-9 chart-wrapper">
-            <canvas id="coverChart"></canvas>
-        </div>
-        <div class="col-md-3 pie-chart-wrapper">
-            <canvas id="coverChartProfit"></canvas>
+        <div class="col-md-12 chart-wrapper">
+            <canvas id="matchedPredictionChart"></canvas>
         </div>
     </div>
 </div>
-<!-- <div class="separator"></div>
-<div class="outer-wrapper">
-    <h3 class="chart-title">First-special result</h3>
+
+<!-- <div class="outer-wrapper">
+    <h3 class="chart-title">Daily Profit</h3>
     <div class="row">
-        <div class="col-md-9 chart-wrapper">
-            <canvas id="fstSpecChart"></canvas>
-        </div>
-        <div class="col-md-3 pie-chart-wrapper">
-            <canvas id="fstSpecChartProfit"></canvas>
+        <div class="col-md-12 chart-wrapper">
+            <canvas id="dailyProfitChart"></canvas>
         </div>
     </div>
 </div> -->
-<div class="separator"></div>
-<div class="outer-wrapper">
-    <h3 class="chart-title">First result</h3>
-    <div class="row">
-        <div class="col-md-9 chart-wrapper">
-            <canvas id="fstChart"></canvas>
-        </div>
-        <div class="col-md-3 pie-chart-wrapper">
-            <canvas id="fstChartProfit"></canvas>
-        </div>
-    </div>
-</div>
-<div class="separator"></div>
-<div class="outer-wrapper">
-    <h3 class="chart-title">Special result</h3>
-    <div class="row">
-        <div class="col-md-9 chart-wrapper">
-            <canvas id="specChart"></canvas>
-        </div>
-        <div class="col-md-3 pie-chart-wrapper">
-            <canvas id="specChartProfit"></canvas>
-        </div>
-    </div>
-</div>
+
 {% endblock %}

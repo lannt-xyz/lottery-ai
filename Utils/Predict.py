@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 def main():
     load_dotenv()
     ai = LotteryAi()
-    channel = 'tra-vinh'
-    prediction = ai.predict(channel, 16)
+    channel = 'an-giang'
+    prediction = ai.predict(channel, 18)
     print('Prediction: ', ', '.join(prediction))
 
 

@@ -42,6 +42,29 @@ class DataAccess:
 
         return data
     
+    def insertFullPrediction(self, date, cityCode, prediction):
+        # check if the prediction is existed by getFullPredictions
+        exitingPrediction = self.getFullPredictions(date, cityCode)
+        if len(exitingPrediction) > 0:
+            return
+
+        self.c.execute('''
+            INSERT INTO full_predictions (date, cityCode, prediction)
+            VALUES (?, ?, ?)
+        ''', (date, cityCode, prediction))
+        self.conn.commit()
+
+    def getFullPredictions(self, date, cityCode):
+        query = '''
+            SELECT prediction
+            FROM full_predictions
+            WHERE date = ? AND cityCode = ?
+        '''
+        data = pd.read_sql_query(query, self.conn, params=(date, cityCode))
+        self.conn.close
+
+        return data
+    
     def insertActual(self, date, cityCode, actual):
         # check if the actual is existed by getActuals
         exitingActual = self.getActuals(date, cityCode)
@@ -69,11 +92,7 @@ class DataAccess:
             SELECT p.date, p.cityCode, p.prediction, IFNULL(a.actual, '') as actual
             FROM predictions p
             LEFT JOIN actuals a
-            ON p.date = a.date
-            AND (
-                replace(p.cityCode, 'first_', '') = a.cityCode
-                OR replace(p.cityCode, 'special_', '') = a.cityCode
-            )
+            ON p.date = a.date AND p.cityCode like '%' || a.cityCode
             WHERE p.prediction IS NOT NULL
             AND p.date >= ?
             AND p.date <= ?
@@ -95,7 +114,7 @@ class DataAccess:
             SELECT p.date, p.cityCode, p.prediction, IFNULL(a.actual, '') as actual
             FROM predictions p
             LEFT JOIN actuals a
-            ON p.date = a.date AND p.cityCode = a.cityCode
+            ON p.date = a.date AND p.cityCode like '%' || a.cityCode
             WHERE p.prediction IS NOT NULL
             AND p.cityCode not like 'fstSpec_%'
             AND p.cityCode <> 'vietlot-655'

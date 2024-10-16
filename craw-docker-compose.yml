@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: Craw/CrawDockerfile
+    container_name: craw-data
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./.env:/app/.env:ro
@@ -11,13 +12,8 @@ services:
       - ./crawing-data:/app/crawing-data
       - ./data:/app/data
       - ./logs:/app/logs
-    networks:
-      - craw
     environment:
-      - CRAWING_TARGET=KQXSVN,KQXSVNFirstSpecial
-      # - CRAWING_START_DATE=2017-08-01
-      #- CRAWING_END_DATE=2019-07-03
-
-networks:
-  craw:
-    driver: bridge
+      - CRAWING_TARGET=KQXSVN
+      #,KQXSVNFirstSpecial
+      # - CRAWING_START_DATE=2024-06-19
+      # - CRAWING_END_DATE=2024-06-19

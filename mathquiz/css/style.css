@@ -1,0 +1,61 @@
+body {
+    background-color: #f0f0f0;
+}
+
+h1 {
+    color: #333;
+}
+
+#quiz-container {
+    /* min-height: 55vh;
+    max-height: 55vh; */
+    overflow-y: auto;
+}
+
+#quiz-container input {
+    width: 5rem;
+}
+
+.container {
+    min-height: 100%;
+}
+
+.question {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+    padding-top: 5px;
+}
+
+.toggle-icon {
+    cursor: pointer;
+}
+
+#toggleFormIcon {
+    float: right;
+}
+
+#quiz-form {
+    margin-bottom: 15px;
+}
+
+.focus-in {
+    color: rgba(64, 3, 105, 0.643);
+}
+
+.focus-out {
+    color: #333;
+}
+
+.modal-body .question-wrapper span.question,
+.modal-body .question-wrapper input.user-answer {
+    font-size: xxx-large;
+}
+
+/* Styles for phone screens */
+@media (max-width: 767px) {
+    .modal-body .question-wrapper span.question,
+    .modal-body .question-wrapper input.user-answer {
+        font-size: x-large;
+    }
+}

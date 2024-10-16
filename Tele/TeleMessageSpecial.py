@@ -25,13 +25,18 @@ bot = Bot(token=bot_token)
 
 # Get the current day of the week
 today = datetime.date.today()
+# change value of today if the environment variable is set
+if 'PREDICT_DATE' in os.environ:
+    today = datetime.datetime.strptime(os.environ['PREDICT_DATE'], '%Y-%m-%d')
+    print('today:', today)
+
 #today = datetime.datetime(2024, 4, 6)
 dayOfWeek = today.weekday()
 
 # Get the city codes of the current day
 cityCodes = lotMap[str(dayOfWeek)]
 # for each item on the cityCodes, if does not `vietlot-655` then keeping current and add a new item with prefix is `fstSpec` to the list
-cityCodes = [cityCode for cityCode in cityCodes if cityCode != 'vietlot-655'] + [f'fstSpec_{cityCode}' for cityCode in cityCodes]
+cityCodes = [cityCode for cityCode in cityCodes if cityCode != 'vietlot-655'] # + [f'fstSpec_{cityCode}' for cityCode in cityCodes]
 print('cityCodes:', cityCodes)
 
 def getPredictionNumberBasedOnCityCode(cityCode):

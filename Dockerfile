@@ -11,11 +11,12 @@ COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the application code to the working directory
-COPY ../Craw/*.py ./Craw/
-COPY ../DB/*.py ./DB/
-COPY ../Logging/*.py ./Logging/
-COPY ../Tele/*.py ./Tele/
-COPY ../Train/*.py ./Train/
-COPY ../Utils/*.py ./Utils/
+COPY ./Craw/*.py ./Craw/
+COPY ./DB/*.py ./DB/
+COPY ./PredictedDecision/*.py ./PredictedDecision/
+COPY ./Logging/*.py ./Logging/
+COPY ./Tele/*.py ./Tele/
+COPY ./Train/*.py ./Train/
+COPY ./Utils/*.py ./Utils/
 
 # CMD [ "python", "-m", "Tele.TeleMessage" ]

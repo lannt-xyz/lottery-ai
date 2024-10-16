@@ -1,19 +1,14 @@
 version: '3'
 services:
   tele:
-    build:
-      context: .
-      dockerfile: Tele/TeleDockerfile
+    image: lotteryai_common
+    container_name: tele-notify
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - .envcp:/app/.env:ro
       - ./models:/app/models
       - ./crawing-data:/app/crawing-data
       - ./data:/app/data
-    networks:
-      - tele
-
-networks:
-  tele:
-    driver: bridge
-
+    command: python -m Tele.TeleMessage
+    # environment:
+    #   - PREDICT_DATE=2024-09-30
