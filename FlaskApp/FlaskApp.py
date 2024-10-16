@@ -546,38 +546,27 @@ def find_matched(startDate, endDate):
     # Return the processed data
     return processed_data
 
-@app.route('/daily-profit', methods=['GET'])
+@app.route('/profit-summary', methods=['GET'])
 def daily_profit():
     startDate = request.args.get('startDate')
     endDate = request.args.get('endDate')
-    matched_data = find_matched(startDate, endDate)
-    # loop through the matched_data, with each date, get the count
-    data = matched_data['data']
-    # get data from environment variable named LOT_MAP
-    lotMap = json.loads(os.getenv('LOT_MAP'))
-    
-    # group the data by date, type and count the number of items
-    daily_data = []
-    for item in data:
-        date_str = item['date']
-        item_type = item['type']
-        matched_count = item['count']
-        # convert to date object from string
-        date = datetime.strptime(date_str, '%Y-%m-%d')
-        # get the day of week index from the date, then convert to string
-        dayOfWeek = str(date.weekday())
-        # get the number of cityCodes based on the key
-        cityCodes = lotMap[dayOfWeek]
-        # get the size of the cityCodes
-        bought = len(cityCodes)
+    dataAccess = DataAccess()
+    data = dataAccess.getCoverResults(startDate, endDate).to_dict(orient='records')
 
-        daily_data.append({
-            'date': date_str,
-            'type': item_type,
-            'profit': bought * coverPayment - matched_count * winingAmount
-        })
-    
-    return jsonify(daily_data)
+    results = { }
+
+    types = ['', 'absent_', 'cycle_', 'combine_']
+    for t in types:
+        pie_data = [x for x in data if t in x['cityCode']]
+        for x in pie_data:
+            x['cityCode'] = x['cityCode'].replace(t, '')
+        pie = processPieChartData(pie_data, coverPayment, coverMatchedFunction).json
+        if t == '':
+            results['common'] = pie
+        else:
+            results[t.replace('_', '')] = pie
+
+    return jsonify(results)
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():

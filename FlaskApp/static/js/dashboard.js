@@ -72,7 +72,7 @@ function generateCharts(startDate, endDate) {
                         borderColor: '#ff0000',
                         backgroundColor: 'rgba(255, 0, 0, 0.2)',
                         borderWidth: 1,
-                        fill: false,
+                        fill: true,
                         tension: 0.4,
                         borderRadius: 20
                     }, {
@@ -81,7 +81,7 @@ function generateCharts(startDate, endDate) {
                         borderColor: '#00ff00',
                         backgroundColor: 'rgba(0, 255, 0, 0.2)',
                         borderWidth: 1,
-                        fill: false,
+                        fill: true,
                         tension: 0.4,
                         borderRadius: 20
                     }, {
@@ -90,7 +90,7 @@ function generateCharts(startDate, endDate) {
                         borderColor: '#400C85',
                         backgroundColor: 'rgba(169, 210, 213, 0.2)',
                         borderWidth: 1,
-                        fill: false,
+                        fill: true,
                         tension: 0.4,
                         borderRadius: 20
                     }, {
@@ -99,7 +99,7 @@ function generateCharts(startDate, endDate) {
                         borderColor: '#0000ff',
                         backgroundColor: 'rgba(0, 0, 255, 0.2)',
                         borderWidth: 1,
-                        fill: false,
+                        fill: true,
                         tension: 0.4,
                         borderRadius: 20
                     }]
@@ -116,7 +116,7 @@ function generateCharts(startDate, endDate) {
                         y: {
                             title: {
                                 display: true,
-                                text: 'Count'
+                                text: 'Matched Count'
                             },
                             ticks: {
                                 beginAtZero: true,
@@ -129,6 +129,78 @@ function generateCharts(startDate, endDate) {
                     maintainAspectRatio: false
                 }
             });
+            chart.canvas.parentNode.style.width = '100%';
+            chartList.push(chart);
+        });
+    
+    fetch('/profit-summary' + queryParameters)
+        .then(response => response.json())
+        .then(data => {
+            let canvas = document.getElementById('profitSummaryChart');
+            let ctx = canvas.getContext('2d');
+
+            const categories = Object.keys(data);
+            const formattedCategories = categories.map(category => category.charAt(0).toUpperCase() + category.slice(1));
+            const totalPayData = categories.map(category => data[category].find(item => item.label === "Total Pay").value);
+            const totalWinningData = categories.map(category => data[category].find(item => item.label === "Total Winning").value);
+            const profitData = totalWinningData.map((winning, index) => winning - totalPayData[index]); // Calculate profit for each category
+
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: formattedCategories,
+                    datasets: [{
+                        label: 'Total Pay',
+                        data: totalPayData,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Total Winning',
+                        data: totalWinningData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Profit',
+                        data: profitData,
+                        backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                        borderColor: 'rgba(255, 206, 86, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            stacked: false,
+                            title: {
+                                display: true,
+                                text: 'Decision Making Categories'
+                            }
+                        },
+                        y: {
+                            stacked: false,
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Amount (VND)'
+                            },
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        datalabels: {
+                            align: 'end',
+                            anchor: 'end',
+                            formatter: (value, context) => {
+                                return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+                            }
+                        }
+                    }
+                }
+            });
+
             chart.canvas.parentNode.style.width = '100%';
             chartList.push(chart);
         });
