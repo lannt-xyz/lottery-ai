@@ -87,11 +87,11 @@ for cityCode in cityCodes:
     dataAccess.insertFullPrediction(today.strftime('%Y-%m-%d'), cityCode, joined_prediction)
 
 
-# message = "\n".join(predictions)
-# # print(message)
+message = "\n".join(predictions)
+# print(message)
 
-# # get chat id from .env file
-# chat_id = os.getenv('CHAT_ID')
+# get chat id from .env file
+chat_id = os.getenv('CHAT_ID')
 
-# # Send all predictions as a single message
-# asyncio.run(bot.send_message(chat_id=chat_id, text=message))
+# Send all predictions as a single message
+asyncio.run(bot.send_message(chat_id=chat_id, text=message))
