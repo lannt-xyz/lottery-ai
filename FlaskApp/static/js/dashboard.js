@@ -150,22 +150,20 @@ function generateCharts(startDate, endDate) {
                 data: {
                     labels: formattedCategories,
                     datasets: [{
-                        label: 'Total Pay',
-                        data: totalPayData,
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    }, {
-                        label: 'Total Winning',
-                        data: totalWinningData,
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }, {
                         label: 'Profit',
                         data: profitData,
-                        backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                        borderColor: 'rgba(255, 206, 86, 1)',
+                        backgroundColor: function(context) {
+                            var index = context.dataIndex;
+                            var value = context.dataset.data[index];
+                            // Using rgba for red and green with an opacity of 0.2
+                            return value < 0 ? 'rgba(255, 0, 0, 0.2)' : 'rgba(0, 128, 0, 0.2)';
+                        },
+                        borderColor: function(context) {
+                            var index = context.dataIndex;
+                            var value = context.dataset.data[index];
+                            // Using rgba for red and green with full opacity for the border
+                            return value < 0 ? 'rgba(255, 0, 0, 1)' : 'rgba(0, 128, 0, 1)';
+                        },
                         borderWidth: 1
                     }]
                 },
@@ -191,8 +189,14 @@ function generateCharts(startDate, endDate) {
                     maintainAspectRatio: false,
                     plugins: {
                         datalabels: {
-                            align: 'end',
-                            anchor: 'end',
+                            align: (context) => {
+                                // If the value is negative, align the label to the bottom; otherwise, to the top
+                                return context.dataset.data[context.dataIndex] < 0 ? 'start' : 'end';
+                            },
+                            anchor: (context) => {
+                                // If the value is negative, anchor the label to the bottom; otherwise, to the top
+                                return context.dataset.data[context.dataIndex] < 0 ? 'start' : 'end';
+                            },
                             formatter: (value, context) => {
                                 return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
                             }
